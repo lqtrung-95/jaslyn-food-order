@@ -9,8 +9,8 @@
     "dev": "nodemon server-supabase.js",
     "dev:legacy": "nodemon server.js",
     "build": "npm run build:client",
-    "build:client": "cd client && npm run build && cp -r client/build .",
-    "vercel-build": "npm run install:client && npm run build:client",
+    "build:client": "cd client && npm run build",
+    "vercel-build": "cd client && npm install && npm run build",
     "install:client": "cd client && npm install",
     "install:all": "npm install && npm run install:client"
   },
