@@ -14,14 +14,14 @@
         ]
       },
       {
-        "name": "清迈 Chiang Mai",
-        "aliases": ["Chiang Mai", "เชียงใหม่"],
-        "districts": ["古城", "尼曼", "山甘烹", "湄林"]
-      },
-      {
         "name": "普吉 Phuket",
         "aliases": ["Phuket", "ภูเก็ต"],
         "districts": ["芭东海滩", "卡伦海滩", "卡塔海滩", "普吉镇"]
+      },
+      {
+        "name": "清迈 Chiang Mai",
+        "aliases": ["Chiang Mai", "เชียงใหม่"],
+        "districts": ["古城", "尼曼", "山甘烹", "湄林"]
       },
       {
         "name": "芭提雅 Pattaya",
@@ -29,14 +29,39 @@
         "districts": ["中天海滩", "芭提雅海滩", "纳库鲁阿", "春武里"]
       },
       {
-        "name": "清莱 Chiang Rai",
-        "aliases": ["Chiang Rai", "เชียงราย"],
-        "districts": ["清莱府", "金三角", "美塞"]
+        "name": "春武里 Hat Yai",
+        "aliases": ["Hat Yai", "หาดใหญ่"],
+        "districts": ["春武里府", "陆路市场", "中央海滩"]
+      },
+      {
+        "name": "苏梅岛 Samui",
+        "aliases": ["Samui", "Koh Samui", "เกาะสมุย"],
+        "districts": ["查汶海滩", "拉迈海滩", "北拉迈", "蛤蟆岛"]
+      },
+      {
+        "name": "甲米 Krabi",
+        "aliases": ["Krabi", "กระบี่"],
+        "districts": ["甲米镇", "奥南海滩", "莱利海滩", "普海滩"]
+      },
+      {
+        "name": "尖竹汶 Chonburi",
+        "aliases": ["Chonburi", "ชลบุรี"],
+        "districts": ["尖竹汶市", "芭提雅", "中天海滩"]
       },
       {
         "name": "华欣 Hua Hin",
         "aliases": ["Hua Hin", "หัวหิน"],
         "districts": ["华欣海滩", "七岩"]
+      },
+      {
+        "name": "素叻他尼 Surat Thani",
+        "aliases": ["Surat Thani", "สุราษฎร์ธานี"],
+        "districts": ["素叻他尼市", "苏梅岛", "普吉岛"]
+      },
+      {
+        "name": "清莱 Chiang Rai",
+        "aliases": ["Chiang Rai", "เชียงราย"],
+        "districts": ["清莱府", "金三角", "美塞"]
       }
     ]
   },
@@ -71,19 +96,49 @@
         ]
       },
       {
-        "name": "槟城 Penang",
-        "aliases": ["Penang", "Pinang"],
-        "districts": ["乔治市", "峇都茅", "丹绒武雅", "牛汝莪"]
-      },
-      {
         "name": "新山 Johor Bahru",
         "aliases": ["Johor Bahru", "JB"],
         "districts": ["新山中央", "地不佬", "淡杯", "士古来"]
       },
       {
+        "name": "巴生谷 Klang Valley",
+        "aliases": ["Klang Valley", "Shah Alam"],
+        "districts": ["莎阿南", "吉隆坡", "蕉赖", "八打灵再也"]
+      },
+      {
+        "name": "槟城 Penang",
+        "aliases": ["Penang", "Pinang"],
+        "districts": ["乔治市", "峇都茅", "丹绒武雅", "牛汝莪"]
+      },
+      {
         "name": "马六甲 Melaka",
         "aliases": ["Malacca", "Melaka"],
         "districts": ["马六甲市", "爱极乐", "巴株巴辖"]
+      },
+      {
+        "name": "怡保 Ipoh",
+        "aliases": ["Ipoh"],
+        "districts": ["怡保市中心", "旧街场", "十八丁"]
+      },
+      {
+        "name": "亚庇 Kota Kinabalu",
+        "aliases": ["Kota Kinabalu", "KK"],
+        "districts": ["亚庇市中心", "利玛广场", "文莱湾"]
+      },
+      {
+        "name": "兰卡威 Langkawi",
+        "aliases": ["Langkawi", "Langkawi Island"],
+        "districts": ["瓜镇", "库厄镇", "珍南海滩"]
+      },
+      {
+        "name": "斗湖 Tawau",
+        "aliases": ["Tawau"],
+        "districts": ["斗湖市中心", "黄港"]
+      },
+      {
+        "name": "古晋 Kuching",
+        "aliases": ["Kuching"],
+        "districts": ["古晋市中心", "砂拉越博物馆", "和平公园"]
       }
     ]
   },
@@ -111,11 +166,49 @@
         ]
       },
       {
+        "name": "北干巴鲁 Pekanbaru",
+        "aliases": ["Pekanbaru"],
+        "districts": [
+          "Sukajadi", "Senapelan", "Rumbai", "Tenayan Raya",
+          "Marpoyan Damai", "Bukit Raya", "Limapuluh"
+        ]
+      },
+      {
+        "name": "巴淡岛 Batam",
+        "aliases": ["Batam"],
+        "districts": [
+          "Nagoya", "Batam Centre", "Jodoh", "Tanjung Uncang",
+          "Batu Ampar", "Sekupang", "Nongsa"
+        ]
+      },
+      {
         "name": "泗水 Surabaya",
         "aliases": ["Surabaya"],
         "districts": [
           "Gubeng", "Sukolilo", "Darmo", "Tunjungan", "Kenjeran",
           "Rungkut", "Mulyorejo", "Genteng", "Sukomanunggal"
+        ]
+      },
+      {
+        "name": "龙目岛 Mataram",
+        "aliases": ["Mataram", "Lombok"],
+        "districts": [
+          "Mataram", "Cakranegara", "Ampenan", "Selaparang"
+        ]
+      },
+      {
+        "name": "日惹 Yogyakarta",
+        "aliases": ["Yogyakarta", "Jogja"],
+        "districts": [
+          "Malioboro", "Kraton", "Kotagede", "Prawirotaman", "Bantul",
+          "Sleman", "Gunung Kidul", "Kulon Progo"
+        ]
+      },
+      {
+        "name": "林巴之下 Labuan Bajo",
+        "aliases": ["Labuan Bajo", "Flores"],
+        "districts": [
+          "Labuan Bajo", "Padar Island", "Komodo"
         ]
       },
       {
@@ -127,11 +220,10 @@
         ]
       },
       {
-        "name": "日惹 Yogyakarta",
-        "aliases": ["Yogyakarta", "Jogja"],
+        "name": "玛琅 Malang",
+        "aliases": ["Malang"],
         "districts": [
-          "Malioboro", "Kraton", "Kotagede", "Prawirotaman", "Bantul",
-          "Sleman", "Gunung Kidul", "Kulon Progo"
+          "Malang City Center", "Pendidikan", "Lowokwaru", "Blimbing"
         ]
       },
       {
@@ -156,22 +248,6 @@
         "districts": [
           "Pantai Losari", "Fort Rotterdam", "Trans Studio", "Somba Opu",
           "Panaikang", "Rappocini", "Manggala"
-        ]
-      },
-      {
-        "name": "巴淡岛 Batam",
-        "aliases": ["Batam"],
-        "districts": [
-          "Nagoya", "Batam Centre", "Jodoh", "Tanjung Uncang",
-          "Batu Ampar", "Sekupang", "Nongsa"
-        ]
-      },
-      {
-        "name": "北干巴鲁 Pekanbaru",
-        "aliases": ["Pekanbaru"],
-        "districts": [
-          "Sukajadi", "Senapelan", "Rumbai", "Tenayan Raya",
-          "Marpoyan Damai", "Bukit Raya", "Limapuluh"
         ]
       }
     ]
