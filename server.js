@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -22,8 +24,8 @@ const supportedCities = require('./data/supported-cities.json');
 const ORDERS_FILE = path.join(__dirname, 'data/orders.json');
 
 // Telegram配置
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '7850606903:AAGGGUfOqVLWdlN5vYt1xqOwQFvNFq3gFIU';
-const TELEGRAM_USER_ID = process.env.TELEGRAM_USER_ID || '7255626892'; // Jaslyn的Telegram用户ID
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_USER_ID = process.env.TELEGRAM_USER_ID;
 
 // 读取订单数据
 function readOrders() {
@@ -141,6 +143,7 @@ async function sendTelegramNotification(order) {
             text: message,
             parse_mode: 'HTML'
         });
+        console.log(`%c🪄 [sendTelegramNotification] response`, `background: #ff6b35; color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: bold`, response);
 
         console.log('Telegram通知发送成功');
         return true;

@@ -11,21 +11,30 @@
     "install:client": "cd client && npm install",
     "install:all": "npm install && npm run install:client"
   },
-  "keywords": ["food", "delivery", "overseas", "service"],
+  "keywords": [
+    "food",
+    "delivery",
+    "overseas",
+    "service"
+  ],
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "body-parser": "^1.20.2",
-    "nodemailer": "^6.9.7",
     "axios": "^1.6.0",
-    "moment": "^2.29.4"
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.18.2",
+    "moment": "^2.29.4",
+    "nodemailer": "^6.9.7"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
   "nodemonConfig": {
-    "ignore": ["data/*", "client/*"]
+    "ignore": [
+      "data/*",
+      "client/*"
+    ]
   }
 }
