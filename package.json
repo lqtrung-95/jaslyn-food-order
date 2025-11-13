@@ -30,7 +30,8 @@
     "dotenv": "^17.2.3",
     "express": "^4.18.2",
     "moment": "^2.29.4",
-    "nodemailer": "^6.9.7"
+    "nodemailer": "^6.9.7",
+    "vercel": "^48.9.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

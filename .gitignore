@@ -35,3 +35,4 @@ Thumbs.db
 
 # 数据文件（如果包含敏感信息）
 /data/orders.json
+.vercel

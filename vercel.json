@@ -1,23 +1,13 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "server-supabase.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/server-supabase.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/server-supabase.js"
+      "source": "/(.*)",
+      "destination": "/api/server-supabase"
     }
   ],
   "functions": {
-    "server-supabase.js": {
+    "api/server-supabase.js": {
       "maxDuration": 30
     }
   }
