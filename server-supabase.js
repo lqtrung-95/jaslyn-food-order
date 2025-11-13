@@ -28,47 +28,11 @@ function generateOrderId() {
   return 'YX' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
 }
 
-// 获取支持的城市数据 (从Supabase)
-async function getSupportedCities() {
-  try {
-    const { data: countries, error: countriesError } = await supabase
-      .from('supported_countries')
-      .select('*');
-
-    if (countriesError) throw countriesError;
-
-    const { data: cities, error: citiesError } = await supabase
-      .from('supported_cities')
-      .select('*');
-
-    if (citiesError) throw citiesError;
-
-    // 组合数据结构
-    const supportedCities = countries.map(country => ({
-      name: country.name,
-      code: country.code,
-      currency: country.currency,
-      platforms: country.platforms,
-      cities: cities
-        .filter(city => city.country_id === country.id)
-        .map(city => ({
-          name: city.name,
-          aliases: city.aliases || [],
-          districts: city.districts || []
-        }))
-    }));
-
-    return supportedCities;
-  } catch (error) {
-    console.error('Error fetching supported cities:', error);
-    // 如果Supabase失败，回退到本地JSON文件
-    return require('./data/supported-cities.json');
-  }
-}
+// 支持的城市数据 (使用JSON文件)
+const supportedCities = require('./data/supported-cities.json');
 
 // 验证地址是否在支持范围内
-async function validateAddress(country, city, district) {
-  const supportedCities = await getSupportedCities();
+function validateAddress(country, city, district) {
   
   // 处理国家匹配 - 支持 "🇹🇭 泰国" 这样的格式
   let countryName = country.trim();
@@ -184,7 +148,7 @@ async function sendTelegramNotification(order) {
 // API路由
 
 // 验证地址
-app.post('/api/validate-address', async (req, res) => {
+app.post('/api/validate-address', (req, res) => {
   const { country, city, district } = req.body;
 
   if (!country || !city) {
@@ -195,7 +159,7 @@ app.post('/api/validate-address', async (req, res) => {
   }
 
   try {
-    const validation = await validateAddress(country, city, district || '');
+    const validation = validateAddress(country, city, district || '');
     res.json(validation);
   } catch (error) {
     console.error('地址验证错误:', error);
@@ -207,9 +171,8 @@ app.post('/api/validate-address', async (req, res) => {
 });
 
 // 获取支持的国家列表
-app.get('/api/supported-countries', async (req, res) => {
+app.get('/api/supported-countries', (req, res) => {
   try {
-    const supportedCities = await getSupportedCities();
     const countries = supportedCities.map(country => ({
       name: country.name,
       code: country.code,
@@ -231,7 +194,7 @@ app.post('/api/submit-order', async (req, res) => {
     console.log('接收到订单数据:', orderData);
 
     // 验证地址
-    const validation = await validateAddress(
+    const validation = validateAddress(
       orderData.country,
       orderData.city,
       orderData.district

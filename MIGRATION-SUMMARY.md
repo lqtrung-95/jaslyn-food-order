@@ -5,8 +5,8 @@
 ### 1. 数据库设计与迁移
 - **✅ 创建了 Supabase 数据库架构**
   - `orders` 表：存储订单信息
-  - `supported_countries` 表：支持的国家
-  - `supported_cities` 表：支持的城市
+  - `supported_countries` 表：支持的国家 (可选，当前使用JSON文件)
+  - `supported_cities` 表：支持的城市 (可选，当前使用JSON文件)
   - 添加了适当的索引和 RLS 政策
 
 - **✅ 数据迁移脚本**

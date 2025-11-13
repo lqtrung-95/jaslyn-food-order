@@ -7,7 +7,7 @@
 1. 访问 [Supabase](https://supabase.com) 并创建新项目
 2. 在 SQL 编辑器中运行数据库迁移脚本：
    - 执行 `supabase/migrations/001_initial_schema.sql`
-   - 执行 `supabase/seed.sql` 来导入支持的城市数据
+   - **注意**: 支持城市数据现在使用本地JSON文件，无需运行 `supabase/seed.sql`
 
 3. 获取项目配置信息：
    - 项目 URL: `https://your-project-id.supabase.co`
