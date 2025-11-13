@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const axios = require('axios');
 const moment = require('moment');
-const supabase = require('./lib/supabase');
+const supabase = require('../lib/supabase');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'client/build')));
+app.use(express.static(path.join(__dirname, '../client/build')));
 
 // Telegram配置
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -29,7 +29,7 @@ function generateOrderId() {
 }
 
 // 支持的城市数据 (使用JSON文件)
-const supportedCities = require('./data/supported-cities.json');
+const supportedCities = require('../data/supported-cities.json');
 
 // 验证地址是否在支持范围内
 function validateAddress(country, city, district) {
@@ -357,7 +357,7 @@ app.get('/api/health', (req, res) => {
 
 // 静态文件服务
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
 });
 
 // 启动服务器
