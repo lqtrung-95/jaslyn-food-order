@@ -19,7 +19,9 @@ app.use(express.static(path.join(__dirname, 'client/build')));
 
 // Telegram配置
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_USER_ID = process.env.TELEGRAM_USER_ID;
+const TELEGRAM_USER_IDS = process.env.TELEGRAM_USER_ID 
+    ? process.env.TELEGRAM_USER_ID.split(',').map(id => id.trim())
+    : [];
 
 // 生成订单号
 function generateOrderId() {
@@ -130,7 +132,7 @@ async function validateAddress(country, city, district) {
 // 发送Telegram通知
 async function sendTelegramNotification(order) {
   try {
-    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_USER_ID) {
+    if (!TELEGRAM_BOT_TOKEN || TELEGRAM_USER_IDS.length === 0) {
       console.log('Telegram配置未设置，跳过通知');
       return true;
     }
@@ -155,13 +157,23 @@ async function sendTelegramNotification(order) {
 特殊需求: ${order.notes || '无'}`;
 
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    const response = await axios.post(url, {
-      chat_id: TELEGRAM_USER_ID,
-      text: message,
-      parse_mode: 'HTML'
-    });
+    
+    // 发送给所有配置的用户
+    const sendPromises = TELEGRAM_USER_IDS.map(userId => 
+      axios.post(url, {
+        chat_id: userId,
+        text: message,
+        parse_mode: 'HTML'
+      }).catch(error => {
+        console.error(`发送给用户 ${userId} 失败:`, error.message);
+        return null;
+      })
+    );
 
-    console.log('Telegram通知发送成功');
+    const results = await Promise.all(sendPromises);
+    const successCount = results.filter(r => r !== null).length;
+    
+    console.log(`Telegram通知发送成功: ${successCount}/${TELEGRAM_USER_IDS.length} 个用户`);
     return true;
   } catch (error) {
     console.error('Telegram通知发送失败:', error.message);

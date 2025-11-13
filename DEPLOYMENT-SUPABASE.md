@@ -24,6 +24,7 @@ SUPABASE_ANON_KEY=your-anon-key-here
 
 # Telegram 配置（可选）
 TELEGRAM_BOT_TOKEN=your-bot-token
+# 支持多个用户，用逗号分隔：123456789,987654321,555555555
 TELEGRAM_USER_ID=your-user-id
 
 # 服务器配置
