@@ -33,6 +33,15 @@ const getCountryFlagUrl = (countryCode: string): string => {
   return `https://flagcdn.com/w80/${countryCode.toLowerCase()}.png`;
 };
 
+// 根据国家代码获取国旗emoji
+const getCountryFlagEmoji = (countryCode: string): string => {
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+};
+
 const stripFlagEmoji = (text: string) => {
   return text.replace(/(?:\uD83C[\uDDE6-\uDDFF]){2}\s*/g, '').trim();
 };
@@ -294,7 +303,7 @@ const App: React.FC = () => {
                             <option value="">请选择国家</option>
                             {countries.map(country => (
                               <option key={country.code} value={country.displayName}>
-                                {country.displayName}
+                                {getCountryFlagEmoji(country.code)} {country.displayName}
                               </option>
                             ))}
                             <option value="custom">其他（需要人工确认）</option>
