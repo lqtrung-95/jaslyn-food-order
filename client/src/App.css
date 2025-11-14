@@ -54,7 +54,7 @@ body {
 }
 
 .logo-img {
-  width: 90px;
+  width: 120px; /* Increased from 90px to match text size */
   height: auto;
   border-radius: 0;
   box-shadow: none;
@@ -195,6 +195,13 @@ body {
   color: #999;
 }
 
+.city-note {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 0.35rem;
+  font-weight: 500;
+}
+
 /* ===== ADDRESS PREVIEW ===== */
 .address-preview-card {
   background-color: var(--light-gray);
@@ -293,6 +300,13 @@ body {
 .btn-submit-custom:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.btn-validate-custom:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #ccc !important;
+  border-color: #ccc !important;
 }
 
 .btn:disabled,
