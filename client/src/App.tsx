@@ -32,6 +32,7 @@ interface OrderForm {
   customerWechat: string;
   country: string;
   city: string;
+  district: string;
   detailAddress: string;
   foodType: string;
   notes: string;
@@ -76,6 +77,7 @@ const App: React.FC = () => {
     customerWechat: "",
     country: "",
     city: "",
+    district: "",
     detailAddress: "",
     foodType: "",
     notes: "",
@@ -89,6 +91,7 @@ const App: React.FC = () => {
     customerWechat: "",
     country: "",
     city: "",
+    district: "",
     detailAddress: "",
     foodType: "",
     notes: "",
@@ -152,6 +155,7 @@ const App: React.FC = () => {
           ...prev,
           country: value,
           city: "",
+          district: "",
         };
         if (value !== "custom") {
           nextState.customCountry = "";
@@ -187,6 +191,7 @@ const App: React.FC = () => {
           ...prev,
           country: value,
           city: "",
+          district: "",
         };
         if (value !== "custom") {
           nextState.customCountry = "";
@@ -371,7 +376,6 @@ const App: React.FC = () => {
     const selectedCountry = !isCustomCountry
       ? countryList.find((c) => c.displayName === data.country)
       : undefined;
-    const selectedCity = data.city;
     const vResult = isShopping ? shoppingValidationResult : validationResult;
     const sResult = isShopping ? shoppingSubmitResult : submitResult;
     const isSubmitting = isShopping ? shoppingSubmitting : submitting;

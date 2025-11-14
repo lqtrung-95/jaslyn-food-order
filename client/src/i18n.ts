@@ -1,7 +1,6 @@
 export type Language = 'zh' | 'en';
 
-export const translations = {
-  zh: {
+const zhTranslations = {
     // Header
     headerTitle: "J's Global Link",
     headerSubtitle: "Global Bites & Buys, Handled by J.",
@@ -119,9 +118,12 @@ export const translations = {
     pleaseValidateBeforeSubmit: "请先验证地址是否在服务范围内",
     submitSuccess: "订单提交成功！",
     orderNumber: "订单号：",
-  },
+} as const;
 
-  en: {
+type TranslationKey = keyof typeof zhTranslations;
+type TranslationMap = Record<TranslationKey, string>;
+
+const enTranslations: TranslationMap = {
     // Header
     headerTitle: "J's Global Link",
     headerSubtitle: "Global Bites & Buys, Handled by J.",
@@ -239,9 +241,14 @@ export const translations = {
     pleaseValidateBeforeSubmit: "Please validate if the address is in the service range first",
     submitSuccess: "Order submitted successfully!",
     orderNumber: "Order Number: ",
-  },
+} as const;
+
+export const translations: Record<Language, TranslationMap> = {
+  zh: zhTranslations,
+  en: enTranslations,
 };
 
-export const getTranslation = (lang: Language, key: keyof typeof translations['zh']) => {
-  return translations[lang][key as any] || translations['zh'][key as any];
+export const getTranslation = (lang: Language, key: TranslationKey): string => {
+  const locale = translations[lang] ?? zhTranslations;
+  return locale[key] ?? zhTranslations[key];
 };
