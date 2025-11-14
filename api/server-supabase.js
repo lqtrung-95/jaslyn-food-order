@@ -30,6 +30,7 @@ function generateOrderId() {
 
 // 支持的城市数据 (使用JSON文件)
 const supportedCities = require('../data/supported-cities.json');
+const supportedShoppingCities = require('../data/supported-cities-shopping.json');
 
 // 验证地址是否在支持范围内
 function validateAddress(country, city, district) {
@@ -183,6 +184,23 @@ app.get('/api/supported-countries', (req, res) => {
     console.error('获取支持国家列表错误:', error);
     res.status(500).json({
       error: '获取支持国家列表失败'
+    });
+  }
+});
+
+// 获取购物支持的国家列表
+app.get('/api/supported-countries/shopping', (req, res) => {
+  try {
+    const countries = supportedShoppingCities.map(country => ({
+      name: country.name,
+      code: country.code,
+      cities: country.cities.map(city => city.name)
+    }));
+    res.json(countries);
+  } catch (error) {
+    console.error('获取购物支持国家列表错误:', error);
+    res.status(500).json({
+      error: '获取购物支持国家列表失败'
     });
   }
 });

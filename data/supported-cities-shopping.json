@@ -1,0 +1,411 @@
+[
+  {
+    "name": "🇹🇭 泰国",
+    "code": "TH",
+    "currency": "THB",
+    "platforms": ["Grab", "FoodPanda", "LineMan"],
+    "cities": [
+      {
+        "name": "曼谷 Bangkok",
+        "aliases": ["Bangkok", "กรุงเทพมหานคร"],
+        "districts": [
+          "素坤逸", "是隆", "沙吞", "暹罗", "乍都乍", "挽坤天",
+          "巴吞旺", "隆披尼", "空堤", "三攀他旺", "帕那空", "律实"
+        ]
+      },
+      {
+        "name": "普吉 Phuket",
+        "aliases": ["Phuket", "ภูเก็ต"],
+        "districts": ["芭东海滩", "卡伦海滩", "卡塔海滩", "普吉镇"]
+      },
+      {
+        "name": "清迈 Chiang Mai",
+        "aliases": ["Chiang Mai", "เชียงใหม่"],
+        "districts": ["古城", "尼曼", "山甘烹", "湄林"]
+      },
+      {
+        "name": "芭提雅 Pattaya",
+        "aliases": ["Pattaya", "พัทยา"],
+        "districts": ["中天海滩", "芭提雅海滩", "纳库鲁阿", "春武里"]
+      },
+      {
+        "name": "春武里 Hat Yai",
+        "aliases": ["Hat Yai", "หาดใหญ่"],
+        "districts": ["春武里府", "陆路市场", "中央海滩"]
+      },
+      {
+        "name": "苏梅岛 Samui",
+        "aliases": ["Samui", "Koh Samui", "เกาะสมุย"],
+        "districts": ["查汶海滩", "拉迈海滩", "北拉迈", "蛤蟆岛"]
+      },
+      {
+        "name": "甲米 Krabi",
+        "aliases": ["Krabi", "กระบี่"],
+        "districts": ["甲米镇", "奥南海滩", "莱利海滩", "普海滩"]
+      },
+      {
+        "name": "尖竹汶 Chonburi",
+        "aliases": ["Chonburi", "ชลบุรี"],
+        "districts": ["尖竹汶市", "芭提雅", "中天海滩"]
+      },
+      {
+        "name": "华欣 Hua Hin",
+        "aliases": ["Hua Hin", "หัวหิน"],
+        "districts": ["华欣海滩", "七岩"]
+      },
+      {
+        "name": "素叻他尼 Surat Thani",
+        "aliases": ["Surat Thani", "สุราษฎร์ธานี"],
+        "districts": ["素叻他尼市", "苏梅岛", "普吉岛"]
+      },
+      {
+        "name": "清莱 Chiang Rai",
+        "aliases": ["Chiang Rai", "เชียงราย"],
+        "districts": ["清莱府", "金三角", "美塞"]
+      }
+    ]
+  },
+  {
+    "name": "🇸🇬 新加坡",
+    "code": "SG",
+    "currency": "SGD",
+    "platforms": ["Grab", "FoodPanda", "Deliveroo"],
+    "cities": [
+      {
+        "name": "新加坡 Singapore",
+        "aliases": ["Singapore"],
+        "districts": [
+          "中峇鲁", "武吉知马", "东海岸", "宏茂桥", "碧山", "芽笼",
+          "加东", "小印度", "乌节路", "牛车水", "圣淘沙", "滨海湾"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "🇲🇾 马来西亚",
+    "code": "MY",
+    "currency": "MYR",
+    "platforms": ["Grab", "FoodPanda"],
+    "cities": [
+      {
+        "name": "吉隆坡 Kuala Lumpur",
+        "aliases": ["Kuala Lumpur", "KL"],
+        "districts": [
+          "武吉免登", "安邦", "孟沙", "白沙罗", "双威", "谷中城",
+          "中央艺术坊", "独立广场", "双子塔", "阿罗街"
+        ]
+      },
+      {
+        "name": "新山 Johor Bahru",
+        "aliases": ["Johor Bahru", "JB"],
+        "districts": ["新山中央", "地不佬", "淡杯", "士古来"]
+      },
+      {
+        "name": "巴生谷 Klang Valley",
+        "aliases": ["Klang Valley", "Shah Alam"],
+        "districts": ["莎阿南", "吉隆坡", "蕉赖", "八打灵再也"]
+      },
+      {
+        "name": "槟城 Penang",
+        "aliases": ["Penang", "Pinang"],
+        "districts": ["乔治市", "峇都茅", "丹绒武雅", "牛汝莪"]
+      },
+      {
+        "name": "马六甲 Melaka",
+        "aliases": ["Malacca", "Melaka"],
+        "districts": ["马六甲市", "爱极乐", "巴株巴辖"]
+      },
+      {
+        "name": "怡保 Ipoh",
+        "aliases": ["Ipoh"],
+        "districts": ["怡保市中心", "旧街场", "十八丁"]
+      },
+      {
+        "name": "亚庇 Kota Kinabalu",
+        "aliases": ["Kota Kinabalu", "KK"],
+        "districts": ["亚庇市中心", "利玛广场", "文莱湾"]
+      },
+      {
+        "name": "兰卡威 Langkawi",
+        "aliases": ["Langkawi", "Langkawi Island"],
+        "districts": ["瓜镇", "库厄镇", "珍南海滩"]
+      },
+      {
+        "name": "斗湖 Tawau",
+        "aliases": ["Tawau"],
+        "districts": ["斗湖市中心", "黄港"]
+      },
+      {
+        "name": "古晋 Kuching",
+        "aliases": ["Kuching"],
+        "districts": ["古晋市中心", "砂拉越博物馆", "和平公园"]
+      }
+    ]
+  },
+  {
+    "name": "🇮🇩 印度尼西亚",
+    "code": "ID",
+    "currency": "IDR",
+    "platforms": ["Grab", "GoFood"],
+    "cities": [
+      {
+        "name": "雅加达 Jakarta",
+        "aliases": ["Jakarta", "DKI Jakarta"],
+        "districts": [
+          "南雅加达", "中雅加达", "西雅加达", "东雅加达", "北雅加达",
+          "千岛群岛", "Kemang", "Senayan", "Menteng", "SCBD", "PIK",
+          "Taman Anggrek", "Kelapa Gading", "Pondok Indah", "Kebayoran"
+        ]
+      },
+      {
+        "name": "巴厘岛 Bali",
+        "aliases": ["Bali", "Denpasar"],
+        "districts": [
+          "库塔", "水明漾", "努沙杜瓦", "乌布", "萨努尔", "金巴兰",
+          "登巴萨", "苍古", "萨努尔", "新加拉惹"
+        ]
+      },
+      {
+        "name": "北干巴鲁 Pekanbaru",
+        "aliases": ["Pekanbaru"],
+        "districts": [
+          "Sukajadi", "Senapelan", "Rumbai", "Tenayan Raya",
+          "Marpoyan Damai", "Bukit Raya", "Limapuluh"
+        ]
+      },
+      {
+        "name": "巴淡岛 Batam",
+        "aliases": ["Batam"],
+        "districts": [
+          "Nagoya", "Batam Centre", "Jodoh", "Tanjung Uncang",
+          "Batu Ampar", "Sekupang", "Nongsa"
+        ]
+      },
+      {
+        "name": "泗水 Surabaya",
+        "aliases": ["Surabaya"],
+        "districts": [
+          "Gubeng", "Sukolilo", "Darmo", "Tunjungan", "Kenjeran",
+          "Rungkut", "Mulyorejo", "Genteng", "Sukomanunggal"
+        ]
+      },
+      {
+        "name": "龙目岛 Mataram",
+        "aliases": ["Mataram", "Lombok"],
+        "districts": [
+          "Mataram", "Cakranegara", "Ampenan", "Selaparang"
+        ]
+      },
+      {
+        "name": "日惹 Yogyakarta",
+        "aliases": ["Yogyakarta", "Jogja"],
+        "districts": [
+          "Malioboro", "Kraton", "Kotagede", "Prawirotaman", "Bantul",
+          "Sleman", "Gunung Kidul", "Kulon Progo"
+        ]
+      },
+      {
+        "name": "林巴之下 Labuan Bajo",
+        "aliases": ["Labuan Bajo", "Flores"],
+        "districts": [
+          "Labuan Bajo", "Padar Island", "Komodo"
+        ]
+      },
+      {
+        "name": "万隆 Bandung",
+        "aliases": ["Bandung"],
+        "districts": [
+          "Cihampelas", "Dago", "Lembang", "Ciwidey", "Tangkuban Perahu",
+          "Paris Van Java", "Cihampelas Walk", "Trans Studio"
+        ]
+      },
+      {
+        "name": "玛琅 Malang",
+        "aliases": ["Malang"],
+        "districts": [
+          "Malang City Center", "Pendidikan", "Lowokwaru", "Blimbing"
+        ]
+      },
+      {
+        "name": "棉兰 Medan",
+        "aliases": ["Medan"],
+        "districts": [
+          "Kesawan", "Polonia", "Maimun", "Sisingamangaraja", "Pancur Batu",
+          "Tuntungan", "Amplas", "Sunggal"
+        ]
+      },
+      {
+        "name": "三宝垄 Semarang",
+        "aliases": ["Semarang"],
+        "districts": [
+          "Simpang Lima", "Lawang Sewu", "Sam Poo Kong", "Candi",
+          "Tugu Muda", "Pekojan", "Kota Lama"
+        ]
+      },
+      {
+        "name": "望加锡 Makassar",
+        "aliases": ["Makassar"],
+        "districts": [
+          "Pantai Losari", "Fort Rotterdam", "Trans Studio", "Somba Opu",
+          "Panaikang", "Rappocini", "Manggala"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "🇻🇳 越南",
+    "code": "VN",
+    "currency": "VND",
+    "platforms": ["Grab", "ShopeeFood", "Baemin"],
+    "cities": [
+      {
+        "name": "胡志明市 Hồ Chí Minh",
+        "aliases": ["Ho Chi Minh City", "Saigon", "TP.HCM", "Hồ Chí Minh"],
+        "districts": [
+          "第一郡", "第三郡", "宾义", "平盛", "平新", "旧邑",
+          "第七郡", "富美兴", "守添", "范五老", "新山一",
+          "平政", "第十二郡", "旭门", "古芝", "芹约"
+        ]
+      },
+      {
+        "name": "河内 Hanoi",
+        "aliases": ["Hanoi", "Ha Noi"],
+        "districts": [
+          "还剑湖", "二征夫人", "巴亭", "西湖", "栋多", "纸桥",
+          "青春", "黄梅", "龙边", "嘉林", "东英", "朔山"
+        ]
+      },
+      {
+        "name": "岘港 Da Nang",
+        "aliases": ["Da Nang"],
+        "districts": [
+          "山茶郡", "海州郡", "清溪郡", "莲沼郡", "五行山郡",
+          "美溪海滩", "巴拿山", "会安", "五行山"
+        ]
+      },
+      {
+        "name": "海防 Hai Phong",
+        "aliases": ["Hai Phong"],
+        "districts": [
+          "鸿庞郡", "吴权郡", "阳京郡", "建安郡", "涂山郡",
+          "吉婆岛", "涂山", "下龙湾"
+        ]
+      },
+      {
+        "name": "芹苴 Can Tho",
+        "aliases": ["Can Tho"],
+        "districts": [
+          "宁平郡", "平水郡", "丐冷郡", "丰田郡",
+          "秃碌郡", "永盛郡", "茶诺"
+        ]
+      },
+      {
+        "name": "芽庄 Nha Trang",
+        "aliases": ["Nha Trang"],
+        "districts": [
+          "万宁县", "延庆县", "庆和省", "芽庄湾",
+          "珍珠岛", "泥浆浴", "钟屿石海滩"
+        ]
+      },
+      {
+        "name": "大叻 Da Lat",
+        "aliases": ["Da Lat"],
+        "districts": [
+          "林同省", "保禄", "大叻市中心", "春香湖",
+          "疯狂屋", "瀑布花园", "茶园"
+        ]
+      },
+      {
+        "name": "顺化 Hue",
+        "aliases": ["Hue"],
+        "districts": [
+          "顺化市", "承天顺化省", "皇城", "天姥寺",
+          "香江", "陵墓群", "顺化皇城"
+        ]
+      },
+      {
+        "name": "富国岛 Phu Quoc",
+        "aliases": ["Phu Quoc"],
+        "districts": [
+          "安泰县", "坚安县", "富国镇", "阳东镇",
+          "白沙滩", "夜市", "珍珠养殖场"
+        ]
+      },
+      {
+        "name": "头顿 Vung Tau",
+        "aliases": ["Vung Tau"],
+        "districts": [
+          "头顿市", "巴地省", "后滩", "前滩",
+          "耶稣山", "海滩", "油井"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "🇰🇭 柬埔寨",
+    "code": "KH",
+    "currency": "KHR",
+    "platforms": ["Grab", "FoodPanda"],
+    "cities": [
+      {
+        "name": "金边 Phnom Penh",
+        "aliases": ["Phnom Penh"],
+        "districts": [
+          "万景岗", "桑园区", "堆谷区", "玛卡拉区", "隆边区",
+          "王城区", "水净华区", "雷西郊区", "波森芷区"
+        ]
+      },
+      {
+        "name": "暹粒 Siem Reap",
+        "aliases": ["Siem Reap"],
+        "districts": [
+          "暹粒市中心", "吴哥窟", "老市场", "酒吧街", "机场路"
+        ]
+      },
+      {
+        "name": "西哈努克 Sihanoukville",
+        "aliases": ["Sihanoukville"],
+        "districts": [
+          "西哈努克市中心", "奥彻迭海滩", "独立海滩", "索卡海滩"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "🇵🇭 菲律宾",
+    "code": "PH",
+    "currency": "PHP",
+    "platforms": ["Grab", "FoodPanda"],
+    "cities": [
+      {
+        "name": "马尼拉 Manila",
+        "aliases": ["Manila", "Metro Manila"],
+        "districts": [
+          "马卡蒂", "帕赛", "马尼拉湾", "奎松市", "帕西格",
+          "曼达卢永", "圣胡安", "拉斯皮纳斯", "塔吉格", "马尼拉"
+        ]
+      },
+      {
+        "name": "宿务 Cebu",
+        "aliases": ["Cebu"],
+        "districts": [
+          "宿务市中心", "曼达维", "拉普拉普", "塔里萨伊", "那牙"
+        ]
+      },
+      {
+        "name": "达沃 Davao",
+        "aliases": ["Davao"],
+        "districts": [
+          "达沃市中心", "达沃湾", "萨马尔岛", "迪戈斯", "塔古姆"
+        ]
+      },
+      {
+        "name": "长滩岛 Boracay",
+        "aliases": ["Boracay"],
+        "districts": [
+          "白沙滩", "普卡海滩", "布拉波海滩", "巴林海海滩"
+        ]
+      }
+    ]
+  }
+]
