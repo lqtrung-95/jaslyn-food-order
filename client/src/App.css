@@ -97,6 +97,36 @@ header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
 }
 
+.brand-hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.brand-logo {
+  width: 76px;
+  height: 76px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.brand-note {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.brand-copy {
+  text-align: center;
+}
+
+.logo-instructions {
+  background: #fff9e6;
+  color: #b26a00;
+  border-left: 4px solid #f0ad4e;
+}
+
 footer {
   background: #f8f9fa;
   border-top: 1px solid #e9ecef;

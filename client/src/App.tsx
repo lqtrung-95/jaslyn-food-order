@@ -2,11 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import './App.css';
+import logo from './assets/logo-2.jpeg';
 
-interface Country {
+interface ApiCountry {
   name: string;
   code: string;
   cities: string[];
+}
+
+interface Country extends ApiCountry {
+  displayName: string;
 }
 
 interface OrderForm {
@@ -26,6 +31,10 @@ interface OrderForm {
 // 国旗映射 - 根据国家代码生成国旗URL
 const getCountryFlagUrl = (countryCode: string): string => {
   return `https://flagcdn.com/w80/${countryCode.toLowerCase()}.png`;
+};
+
+const stripFlagEmoji = (text: string) => {
+  return text.replace(/(?:\uD83C[\uDDE6-\uDDFF]){2}\s*/g, '').trim();
 };
 
 const App: React.FC = () => {
@@ -55,8 +64,12 @@ const App: React.FC = () => {
 
   const fetchCountries = async () => {
     try {
-      const response = await axios.get('/api/supported-countries');
-      setCountries(response.data);
+      const response = await axios.get<ApiCountry[]>('/api/supported-countries');
+      const formattedCountries = response.data.map(country => ({
+        ...country,
+        displayName: stripFlagEmoji(country.name)
+      }));
+      setCountries(formattedCountries);
     } catch (error) {
       console.error('获取国家列表失败:', error);
     } finally {
@@ -66,13 +79,28 @@ const App: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => {
+      if (name === 'country') {
+        const nextState = {
+          ...prev,
+          country: value,
+          city: '',
+          district: ''
+        };
+        if (value !== 'custom') {
+          nextState.customCountry = '';
+          nextState.customCity = '';
+        }
+        return nextState;
+      }
+      return {
+        ...prev,
+        [name]: value
+      };
+    });
 
     // 清除之前的验证结果
-    if (['country', 'city', 'district'].includes(name)) {
+    if (['country', 'city', 'district', 'customCountry', 'customCity'].includes(name)) {
       setValidationResult(null);
       setSubmitResult(null);
     }
@@ -100,14 +128,9 @@ const App: React.FC = () => {
     }
 
     try {
-      // 提取国家名称（移除国旗emoji）
-      const countryNameOnly = formData.country.replace(/^[\u1F1E6-\u1F1FF]{2}\s+/, '').trim();
-      // 发送完整的城市名称（包括中英文）
-      const cityNameOnly = formData.city;
-
       const response = await axios.post('/api/validate-address', {
-        country: countryNameOnly,
-        city: cityNameOnly,
+        country,
+        city,
         district: formData.district
       });
 
@@ -133,15 +156,10 @@ const App: React.FC = () => {
 
     setSubmitting(true);
 
-    // 准备提交的数据（提取国家名称去掉国旗）
-    const countryNameOnly = formData.country.replace(/^[\u1F1E6-\u1F1FF]{2}\s+/, '').trim();
-    // 发送完整的城市名称（包括中英文）
-    const cityNameOnly = formData.city;
-
     const submitData = {
       ...formData,
-      country: isCustomCountry ? formData.customCountry : countryNameOnly,
-      city: isCustomCountry ? formData.customCity : cityNameOnly
+      country: isCustomCountry ? formData.customCountry : formData.country,
+      city: isCustomCountry ? formData.customCity : formData.city
     };
 
     try {
@@ -175,9 +193,11 @@ const App: React.FC = () => {
     }
   };
 
-  const selectedCountry = countries.find(c => c.name === formData.country);
-  const selectedCity = selectedCountry?.cities.find(city => city === formData.city);
-  const isCustomCountry = formData.country === '其他' || formData.country === '';
+  const isCustomCountry = formData.country === 'custom';
+  const selectedCountry = !isCustomCountry
+    ? countries.find(c => c.displayName === formData.country)
+    : undefined;
+  const selectedCity = formData.city;
 
   if (loading) {
     return (
@@ -193,8 +213,13 @@ const App: React.FC = () => {
     <div className="App">
       <header className="bg-primary text-white py-4 mb-4">
         <Container>
-          <h1 className="text-center mb-0">🍜 异国小助手</h1>
-          <p className="text-center mb-0 mt-2">专业的海外代点外卖服务平台</p>
+          <div className="brand-hero">
+            <img src={logo} alt="异国小助手 Logo" className="brand-logo" />
+            <div className="brand-copy">
+              <h1 className="mb-1">🍜 异国小助手</h1>
+              <p className="mb-0">专业的海外代点外卖服务平台</p>
+            </div>
+          </div>
         </Container>
       </header>
 
@@ -219,62 +244,17 @@ const App: React.FC = () => {
                   </Alert>
 
                   <Form onSubmit={handleSubmit}>
-                    {/* 客户信息 */}
-                    <h5 className="mb-3">👤 联系信息</h5>
-                    <Row className="mb-4">
-                      <Col md={6}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>收货人姓名 *</Form.Label>
-                          <Form.Control
-                            type="text"
-                            name="customerName"
-                            value={formData.customerName}
-                            onChange={handleInputChange}
-                            required
-                            placeholder="请输入收货人姓名"
-                          />
-                        </Form.Group>
-                      </Col>
-                      <Col md={6}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>收货人电话 *</Form.Label>
-                          <Form.Control
-                            type="tel"
-                            name="customerPhone"
-                            value={formData.customerPhone}
-                            onChange={handleInputChange}
-                            required
-                            placeholder="请输入收货人电话"
-                          />
-                        </Form.Group>
-                      </Col>
-                      <Col md={12}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>订餐人微信号</Form.Label>
-                          <Form.Control
-                            type="text"
-                            name="customerWechat"
-                            value={formData.customerWechat}
-                            onChange={handleInputChange}
-                            placeholder="选填，方便联系"
-                          />
-                        </Form.Group>
-                      </Col>
-                    </Row>
-
                     {/* 配送地址 */}
                     <h5 className="mb-3">📍 配送地址</h5>
 
                     {/* 地址预览卡片 */}
-                    {(formData.country || formData.customCountry) && (
+                    {((!isCustomCountry && formData.country) || formData.customCountry) && (
                       <Card className="mb-4" style={{ backgroundColor: '#f8f9fa' }}>
                         <Card.Body style={{ padding: '15px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                            {!isCustomCountry && formData.country && (
+                            {!isCustomCountry && selectedCountry && (
                               <img
-                                src={getCountryFlagUrl(
-                                  countries.find(c => c.name === formData.country)?.code || 'un'
-                                )}
+                                src={getCountryFlagUrl(selectedCountry.code)}
                                 alt="flag"
                                 style={{
                                   width: '50px',
@@ -288,7 +268,7 @@ const App: React.FC = () => {
                             <div>
                               <div style={{ fontSize: '14px', color: '#666' }}>配送地址</div>
                               <div style={{ fontSize: '18px', fontWeight: 'bold', marginTop: '5px' }}>
-                                {isCustomCountry ? formData.customCountry : formData.country?.replace(/^[\u1F1E6-\u1F1FF]{2}\s+/, '').trim()}
+                                {isCustomCountry ? formData.customCountry : formData.country}
                                 {formData.city && ` · ${formData.city}`}
                               </div>
                               {formData.district && (
@@ -305,43 +285,20 @@ const App: React.FC = () => {
                       <Col md={4}>
                         <Form.Group className="mb-3">
                           <Form.Label>国家 *</Form.Label>
-                          <div style={{ position: 'relative' }}>
-                            <Form.Select
-                              name="country"
-                              value={formData.country}
-                              onChange={handleInputChange}
-                              required
-                              style={{ paddingLeft: '40px' }}
-                            >
-                              <option value="">请选择国家</option>
-                              {countries.map(country => (
-                                <option key={country.code} value={country.name}>
-                                  {country.name.replace(/^[\u1F1E6-\u1F1FF]{2}\s+/, '').trim()}
-                                </option>
-                              ))}
-                              <option value="其他">其他（需要人工确认）</option>
-                            </Form.Select>
-                            {/* 显示已选择国家的国旗 */}
-                            {formData.country && formData.country !== '其他' && (
-                              <img
-                                src={getCountryFlagUrl(
-                                  countries.find(c => c.name === formData.country)?.code || 'un'
-                                )}
-                                alt="flag"
-                                style={{
-                                  position: 'absolute',
-                                  left: '10px',
-                                  top: '50%',
-                                  transform: 'translateY(-50%)',
-                                  width: '25px',
-                                  height: '16px',
-                                  borderRadius: '2px',
-                                  objectFit: 'cover',
-                                  pointerEvents: 'none'
-                                }}
-                              />
-                            )}
-                          </div>
+                          <Form.Select
+                            name="country"
+                            value={formData.country}
+                            onChange={handleInputChange}
+                            required
+                          >
+                            <option value="">请选择国家</option>
+                            {countries.map(country => (
+                              <option key={country.code} value={country.displayName}>
+                                {country.displayName}
+                              </option>
+                            ))}
+                            <option value="custom">其他（需要人工确认）</option>
+                          </Form.Select>
                         </Form.Group>
                       </Col>
                       {isCustomCountry && (
@@ -437,24 +394,7 @@ const App: React.FC = () => {
                           variant={validationResult.valid ? 'success' : 'danger'}
                           className="mt-3"
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            {!isCustomCountry && formData.country && (
-                              <img
-                                src={getCountryFlagUrl(
-                                  countries.find(c => c.name === formData.country)?.code || 'un'
-                                )}
-                                alt="flag"
-                                style={{
-                                  width: '30px',
-                                  height: '20px',
-                                  borderRadius: '3px',
-                                  objectFit: 'cover',
-                                  flexShrink: 0
-                                }}
-                              />
-                            )}
-                            <span>{validationResult.message}</span>
-                          </div>
+                          {validationResult.message}
                         </Alert>
                       )}
                     </div>
@@ -506,27 +446,53 @@ const App: React.FC = () => {
                       </Col>
                     </Row>
 
+                    {/* 联系方式 */}
+                    <h5 className="mb-3">📞 联系方式</h5>
+                    <Row className="mb-4">
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>收货人姓名 *</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="customerName"
+                            value={formData.customerName}
+                            onChange={handleInputChange}
+                            required
+                            placeholder="请输入收货人姓名"
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>收货人电话 *</Form.Label>
+                          <Form.Control
+                            type="tel"
+                            name="customerPhone"
+                            value={formData.customerPhone}
+                            onChange={handleInputChange}
+                            required
+                            placeholder="请输入收货人电话"
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={12}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>订餐人微信号</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="customerWechat"
+                            value={formData.customerWechat}
+                            onChange={handleInputChange}
+                            placeholder="选填，方便联系"
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+
                     {/* 提交结果 */}
                     {submitResult && (
                       <Alert variant={submitResult.success ? 'success' : 'danger'}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                          {submitResult.success && !isCustomCountry && formData.country && (
-                            <img
-                              src={getCountryFlagUrl(
-                                countries.find(c => c.name === formData.country)?.code || 'un'
-                              )}
-                              alt="flag"
-                              style={{
-                                width: '30px',
-                                height: '20px',
-                                borderRadius: '3px',
-                                objectFit: 'cover',
-                                flexShrink: 0
-                              }}
-                            />
-                          )}
-                          <span>{submitResult.message}</span>
-                        </div>
+                        <div style={{ marginBottom: '10px' }}>{submitResult.message}</div>
                         {submitResult.orderId && (
                           <div className="mt-2">
                             <strong>订单号：{submitResult.orderId}</strong>
@@ -564,7 +530,7 @@ const App: React.FC = () => {
         <Container>
           <div className="text-center">
             <small className="text-muted">
-              © 2024 异国小助手. All rights reserved.
+              © 2025 异国小助手. All rights reserved.
             </small>
           </div>
         </Container>
