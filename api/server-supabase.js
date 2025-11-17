@@ -237,7 +237,7 @@ app.post('/api/submit-order', async (req, res) => {
       country: orderData.country,
       city: orderData.city,
       district: orderData.district || null,
-      detail_address: orderData.detailAddress,
+      detail_address: orderData.detailAddress || orderData.detailedAddress, // Support both naming conventions
       food_type: orderData.foodType,
       notes: orderData.notes || null,
       custom_country: orderData.customCountry || null,
