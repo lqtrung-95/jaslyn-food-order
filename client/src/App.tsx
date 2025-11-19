@@ -45,6 +45,45 @@ const stripFlagEmoji = (text: string) => {
   return text.replace(/(?:\uD83C[\uDDE6-\uDDFF]){2}\s*/g, "").trim();
 };
 
+// Country name mapping from Chinese to English
+const countryNameMap: Record<string, string> = {
+  "泰国": "Thailand",
+  "新加坡": "Singapore",
+  "马来西亚": "Malaysia",
+  "印度尼西亚": "Indonesia",
+  "越南": "Vietnam",
+  "德国": "Germany",
+  "澳大利亚": "Australia",
+  "柬埔寨": "Cambodia",
+  "菲律宾": "Philippines"
+};
+
+const getLocalizedText = (text: string, lang: Language) => {
+  // Remove flag emoji first
+  const cleanText = stripFlagEmoji(text);
+  
+  if (lang === "en") {
+    // Check if this is a country name (no spaces in Chinese text)
+    if (countryNameMap[cleanText]) {
+      return countryNameMap[cleanText];
+    }
+    
+    // For city names: "Chinese English" format
+    // Extract only the English part
+    const parts = cleanText.split(/\s+/);
+    
+    // If there are multiple parts, take the last part(s) that are in Latin script
+    const englishParts = parts.filter(part => /^[A-Za-z]/.test(part));
+    
+    if (englishParts.length > 0) {
+      return englishParts.join(" ");
+    }
+  }
+  
+  // For Chinese or if no English found, return the full text
+  return cleanText;
+};
+
 const App: React.FC = () => {
   const [language, setLanguage] = useState<Language>(() => {
     const saved = localStorage.getItem("language") as Language | null;
@@ -216,6 +255,35 @@ const App: React.FC = () => {
     }
   };
 
+  const translateValidationMessage = (message: string): string => {
+    if (language === "zh") return message;
+    
+    // Translation map for validation messages
+    const translations: Record<string, string> = {
+      "✅ 地址验证通过，我们支持该地区": "✅ Address validated, we support this area",
+      "✅ 已记录您的地址，我们会尽快人工确认是否支持该地区配送": "✅ Address recorded, we will manually confirm delivery support soon",
+      "请填写国家和城市": "Please fill in country and city",
+      "地址验证失败，请重试": "Address validation failed, please try again",
+      "暂不支持该国家": "This country is not supported yet"
+    };
+    
+    // Check for exact match first
+    if (translations[message]) {
+      return translations[message];
+    }
+    
+    // Handle dynamic messages like "暂不支持泰国的某某地区"
+    if (message.includes("暂不支持") && message.includes("地区")) {
+      return message.replace(/暂不支持(.+)的(.+)地区/, "We don't support $2 area in $1 yet");
+    }
+    
+    if (message.includes("暂不支持") && message.includes("区域")) {
+      return message.replace(/暂不支持(.+)的(.+)区域/, "We don't support $2 district in $1 yet");
+    }
+    
+    return message;
+  };
+
   const validateAddress = async (isShoppingForm: boolean = false) => {
     const data = isShoppingForm ? shoppingFormData : formData;
     const isCustomCountry = data.country === "custom";
@@ -223,24 +291,32 @@ const App: React.FC = () => {
     const city = isCustomCountry ? data.customCity : data.city;
 
     if (!country || !city) {
+      const message = language === "zh" 
+        ? "请填写国家和城市" 
+        : "Please fill in country and city";
+      
       if (isShoppingForm) {
         setShoppingValidationResult({
           valid: false,
-          message: "请填写国家和城市",
+          message,
         });
       } else {
         setValidationResult({
           valid: false,
-          message: "请填写国家和城市",
+          message,
         });
       }
       return;
     }
 
     if (isCustomCountry) {
+      const message = language === "zh"
+        ? "✅ 已记录您的地址，我们会尽快人工确认是否支持该地区配送"
+        : "✅ Address recorded, we will manually confirm delivery support soon";
+      
       const result = {
         valid: true,
-        message: "✅ 已记录您的地址，我们会尽快人工确认是否支持该地区配送",
+        message,
       };
       if (isShoppingForm) {
         setShoppingValidationResult(result);
@@ -257,15 +333,25 @@ const App: React.FC = () => {
         district: data.district,
       });
 
+      const translatedMessage = translateValidationMessage(response.data.message);
+      const result = {
+        ...response.data,
+        message: translatedMessage
+      };
+
       if (isShoppingForm) {
-        setShoppingValidationResult(response.data);
+        setShoppingValidationResult(result);
       } else {
-        setValidationResult(response.data);
+        setValidationResult(result);
       }
     } catch (error) {
+      const message = language === "zh"
+        ? "地址验证失败，请重试"
+        : "Address validation failed, please try again";
+      
       const errorResult = {
         valid: false,
-        message: "地址验证失败，请重试",
+        message,
       };
       if (isShoppingForm) {
         setShoppingValidationResult(errorResult);
@@ -522,9 +608,10 @@ const App: React.FC = () => {
                               127397 + country.code.charCodeAt(0),
                               127397 + country.code.charCodeAt(1)
                             );
+                            const displayText = getLocalizedText(country.displayName, language);
                             return (
                               <option key={country.code} value={country.displayName}>
-                                {flagEmoji} {country.displayName}
+                                {flagEmoji} {displayText}
                               </option>
                             );
                           })}
@@ -586,7 +673,7 @@ const App: React.FC = () => {
                             <option value="">{language === "zh" ? "请选择城市" : "Please select city"}</option>
                             {selectedCountry?.cities.map((city) => (
                               <option key={city} value={city}>
-                                {city}
+                                {getLocalizedText(city, language)}
                               </option>
                             ))}
                           </Form.Select>
@@ -715,7 +802,7 @@ const App: React.FC = () => {
                     }
                     required
                   >
-                    <option value="">
+                    <option value=""                    >
                       {isShopping
                         ? language === "zh"
                           ? "请选择商品分类"
@@ -726,33 +813,33 @@ const App: React.FC = () => {
                     </option>
                     {!isShopping && (
                       <>
-                        <option value="奶茶">🥤 奶茶</option>
-                        <option value="披萨">🍕 披萨</option>
-                        <option value="汉堡">🍔 汉堡</option>
-                        <option value="商超">🛒 商超</option>
-                        <option value="中餐">🥢 中餐</option>
-                        <option value="西餐">🍽️ 西餐</option>
-                        <option value="日料">🍱 日料</option>
-                        <option value="韩料">🍖 韩料</option>
-                        <option value="泰餐">🍛 泰餐</option>
-                        <option value="越南菜">🥣 越南菜</option>
-                        <option value="印尼菜">🍲 印尼菜</option>
-                        <option value="马来菜">🍛 马来菜</option>
-                        <option value="快餐">🍟 快餐</option>
-                        <option value="烧烤">🍢 烧烤</option>
-                        <option value="甜品">🍰 甜品</option>
-                        <option value="其他">🍱 其他</option>
+                        <option value="奶茶">🥤 {language === "zh" ? "奶茶" : "Bubble Tea"}</option>
+                        <option value="披萨">🍕 {language === "zh" ? "披萨" : "Pizza"}</option>
+                        <option value="汉堡">🍔 {language === "zh" ? "汉堡" : "Burger"}</option>
+                        <option value="商超">🛒 {language === "zh" ? "商超" : "Grocery"}</option>
+                        <option value="中餐">🥢 {language === "zh" ? "中餐" : "Chinese"}</option>
+                        <option value="西餐">🍽️ {language === "zh" ? "西餐" : "Western"}</option>
+                        <option value="日料">🍱 {language === "zh" ? "日料" : "Japanese"}</option>
+                        <option value="韩料">🍖 {language === "zh" ? "韩料" : "Korean"}</option>
+                        <option value="泰餐">🍛 {language === "zh" ? "泰餐" : "Thai"}</option>
+                        <option value="越南菜">🥣 {language === "zh" ? "越南菜" : "Vietnamese"}</option>
+                        <option value="印尼菜">🍲 {language === "zh" ? "印尼菜" : "Indonesian"}</option>
+                        <option value="马来菜">🍛 {language === "zh" ? "马来菜" : "Malaysian"}</option>
+                        <option value="快餐">🍟 {language === "zh" ? "快餐" : "Fast Food"}</option>
+                        <option value="烧烤">🍢 {language === "zh" ? "烧烤" : "BBQ"}</option>
+                        <option value="甜品">🍰 {language === "zh" ? "甜品" : "Dessert"}</option>
+                        <option value="其他">🍱 {language === "zh" ? "其他" : "Other"}</option>
                       </>
                     )}
                     {isShopping && (
                       <>
-                        <option value="服装">👕 服装</option>
-                        <option value="美妆">💄 美妆</option>
-                        <option value="电子">📱 电子产品</option>
-                        <option value="食品">🍫 食品</option>
-                        <option value="日用品">🧴 日用品</option>
-                        <option value="户外">🎒 户外用品</option>
-                        <option value="其他">📦 其他</option>
+                        <option value="服装">👕 {language === "zh" ? "服装" : "Clothing"}</option>
+                        <option value="美妆">💄 {language === "zh" ? "美妆" : "Beauty"}</option>
+                        <option value="电子">📱 {language === "zh" ? "电子产品" : "Electronics"}</option>
+                        <option value="食品">🍫 {language === "zh" ? "食品" : "Food"}</option>
+                        <option value="日用品">🧴 {language === "zh" ? "日用品" : "Daily Necessities"}</option>
+                        <option value="户外">🎒 {language === "zh" ? "户外用品" : "Outdoor"}</option>
+                        <option value="其他">📦 {language === "zh" ? "其他" : "Other"}</option>
                       </>
                     )}
                   </Form.Select>
