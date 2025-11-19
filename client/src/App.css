@@ -47,6 +47,11 @@ body {
 }
 
 .logo-brand {
+  min-width: 120px;
+  min-height: 120px;
+}
+
+.logo-brand {
   display: flex;
   align-items: center;
   gap: 1rem;

@@ -13,6 +13,7 @@ import axios from "axios";
 import "./App.css";
 import logo from "./assets/logo-7.png";
 import { translations, type Language, getTranslation } from "./i18n";
+import { Analytics } from "@vercel/analytics/react";
 
 type TabType = "delivery" | "shopping" | "guide" | "about";
 
@@ -994,6 +995,7 @@ const App: React.FC = () => {
           </div>
         </Container>
       </footer>
+      <Analytics />
     </div>
   );
 };
