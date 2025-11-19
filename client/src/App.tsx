@@ -41,10 +41,6 @@ interface OrderForm {
   customCity: string;
 }
 
-const getCountryFlagUrl = (countryCode: string): string => {
-  return `https://flagcdn.com/w80/${countryCode.toLowerCase()}.png`;
-};
-
 const stripFlagEmoji = (text: string) => {
   return text.replace(/(?:\uD83C[\uDDE6-\uDDFF]){2}\s*/g, "").trim();
 };
@@ -110,6 +106,10 @@ const App: React.FC = () => {
     orderId?: string;
   } | null>(null);
   const [shoppingSubmitting, setShoppingSubmitting] = useState(false);
+
+  // Step-by-step flow state
+  const [currentStep, setCurrentStep] = useState(1);
+  const [shoppingCurrentStep, setShoppingCurrentStep] = useState(1);
 
   useEffect(() => {
     fetchCountries();
@@ -331,6 +331,7 @@ const App: React.FC = () => {
             customCity: "",
           });
           setShoppingValidationResult(null);
+          setShoppingCurrentStep(1);
         }
       } else {
         setSubmitResult(response.data);
@@ -349,6 +350,7 @@ const App: React.FC = () => {
             customCity: "",
           });
           setValidationResult(null);
+          setCurrentStep(1);
         }
       }
     } catch (error) {
@@ -370,6 +372,64 @@ const App: React.FC = () => {
     }
   };
 
+  const renderStepper = (step: number, isShopping: boolean = false) => {
+    const steps = [
+      { number: 1, label: language === "zh" ? "地址" : "Address", icon: "📍" },
+      { number: 2, label: language === "zh" ? "订单" : "Order", icon: isShopping ? "🛍️" : "🍽️" },
+      { number: 3, label: language === "zh" ? "联系" : "Contact", icon: "📞" },
+    ];
+
+    return (
+      <div className="stepper-container">
+        {steps.map((s, index) => (
+          <React.Fragment key={s.number}>
+            <div className={`stepper-step ${step >= s.number ? "active" : ""} ${step > s.number ? "completed" : ""}`}>
+              <div className="stepper-circle">
+                {step > s.number ? "✓" : s.number}
+              </div>
+              <div className="stepper-label">{s.label}</div>
+            </div>
+            {index < steps.length - 1 && (
+              <div className={`stepper-line ${step > s.number ? "completed" : ""}`}></div>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+    );
+  };
+
+  const canProceedToStep2 = (isShopping: boolean = false) => {
+    const data = isShopping ? shoppingFormData : formData;
+    const vResult = isShopping ? shoppingValidationResult : validationResult;
+    const isCustomCountry = data.country === "custom";
+    
+    return vResult?.valid && data.detailAddress && 
+           ((isCustomCountry && data.customCountry && data.customCity) || 
+            (!isCustomCountry && data.country && data.city));
+  };
+
+  const canProceedToStep3 = (isShopping: boolean = false) => {
+    const data = isShopping ? shoppingFormData : formData;
+    return data.foodType !== "";
+  };
+
+  const handleNextStep = (isShopping: boolean = false) => {
+    const step = isShopping ? shoppingCurrentStep : currentStep;
+    
+    if (step === 1 && canProceedToStep2(isShopping)) {
+      isShopping ? setShoppingCurrentStep(2) : setCurrentStep(2);
+    } else if (step === 2 && canProceedToStep3(isShopping)) {
+      isShopping ? setShoppingCurrentStep(3) : setCurrentStep(3);
+    }
+  };
+
+  const handlePrevStep = (isShopping: boolean = false) => {
+    const step = isShopping ? shoppingCurrentStep : currentStep;
+    if (step > 1) {
+      isShopping ? setShoppingCurrentStep(step - 1) : setCurrentStep(step - 1);
+    }
+  };
+
   const renderOrderForm = (isShopping: boolean = false) => {
     const data = isShopping ? shoppingFormData : formData;
     const countryList = isShopping ? shoppingCountries : countries;
@@ -380,175 +440,173 @@ const App: React.FC = () => {
     const vResult = isShopping ? shoppingValidationResult : validationResult;
     const sResult = isShopping ? shoppingSubmitResult : submitResult;
     const isSubmitting = isShopping ? shoppingSubmitting : submitting;
+    const step = isShopping ? shoppingCurrentStep : currentStep;
 
     return (
       <Card className="order-card">
         <Card.Header className="card-header-custom">
-          <h4 className="mb-0">
-            {isShopping
-              ? language === "zh"
-                ? "📦 网购代下订单"
-                : "📦 Online Shopping"
-              : language === "zh"
-                ? "📝 外卖代点订单"
-                : "📝 Food Delivery"}
-          </h4>
+          <div className="card-header-content">
+            <h4 className="mb-0">
+              {isShopping
+                ? language === "zh"
+                  ? "📦 网购代下订单"
+                  : "📦 Online Shopping"
+                : language === "zh"
+                  ? "📝 外卖代点订单"
+                  : "📝 Food Delivery"}
+            </h4>
+            <p className="header-subtitle">
+              {language === "zh"
+                ? isShopping
+                  ? "从本地到国际商品，覆盖9个国家配送"
+                  : "从本地美食到国际料理，覆盖9个国家配送"
+                : isShopping
+                  ? "From local to international products, delivered across 9 countries"
+                  : "From local favorites to international dishes, delivered across 9 countries"}
+            </p>
+          </div>
         </Card.Header>
         <Card.Body>
-          <Alert variant="info" className="mb-4">
-            <Alert.Heading>🌍 {language === "zh" ? "支持地区" : "Supported Areas"}</Alert.Heading>
-            {isShopping ? (
-              <p className="mb-0">
-                {language === "zh"
-                  ? "目前仅支持东南亚地区：泰国、新加坡、马来西亚、印尼、越南、柬埔寨、菲律宾"
-                  : "Currently only supported in Southeast Asia: Thailand, Singapore, Malaysia, Indonesia, Vietnam, Cambodia, Philippines"}
-              </p>
-            ) : (
-              <>
-                <p className="mb-2">
-                  {language === "zh"
-                    ? "目前支持：泰国、新加坡、马来西亚、印尼、越南、德国、澳大利亚、柬埔寨、菲律宾"
-                    : "Currently supported: Thailand, Singapore, Malaysia, Indonesia, Vietnam, Germany, Australia, Cambodia, Philippines"}
-                </p>
-                <p className="mb-0">
-                  <small>
-                    {language === "zh"
-                      ? "基于 Grab、Uber Eats 等主流平台覆盖范围"
-                      : "Based on coverage of major platforms like Grab, Uber Eats, etc."}
-                  </small>
-                </p>
-              </>
-            )}
+          {renderStepper(step, isShopping)}
+
+          <Alert variant="info" className="mb-4 supported-areas-alert">
+            <div className="supported-areas-header">
+              <span className="globe-icon">🌍</span>
+              <strong>{language === "zh" ? "支持地区" : "Supported Areas"}</strong>
+            </div>
+            <p className="supported-areas-text">
+              {isShopping ? (
+                language === "zh"
+                  ? "泰国, 新加坡, 马来西亚, 印尼, 越南, 柬埔寨, 菲律宾"
+                  : "Thailand, Singapore, Malaysia, Indonesia, Vietnam, Cambodia, Philippines"
+              ) : (
+                language === "zh"
+                  ? "泰国, 新加坡, 马来西亚, 印尼, 越南, 德国, 澳大利亚, 柬埔寨, 菲律宾"
+                  : "Thailand, Singapore, Malaysia, Indonesia, Vietnam, Germany, Australia, Cambodia, Philippines"
+              )}
+            </p>
           </Alert>
 
           <Form onSubmit={(e) => handleSubmit(e, isShopping)}>
-            <h5 className="form-section-title">📍 {language === "zh" ? "收货地址" : "Delivery Address"}</h5>
+            {/* Step 1: Address */}
+            {step === 1 && (
+              <>
+                <div className="step-header">
+                  <h5 className="form-section-title">
+                    <span className="step-icon">📍</span>
+                    {language === "zh" ? "收货地址" : "Delivery Address"}
+                  </h5>
+                  <p className="step-subtitle">
+                    {language === "zh" ? "请填写您的收货地址" : "Where should we deliver your order?"}
+                  </p>
+                </div>
 
-            {((!isCustomCountry && data.country) || data.customCountry) && (
-              <Card className="address-preview-card">
-                <Card.Body>
-                  <div className="address-preview-content">
-                    {!isCustomCountry && selectedCountry && (
-                      <img
-                        src={getCountryFlagUrl(selectedCountry.code)}
-                        alt="flag"
-                        className="flag-img"
-                      />
+                <div className="address-form-wrapper">
+                  <Row className="mb-3">
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>{language === "zh" ? "国家 *" : "Country *"}</Form.Label>
+                        <Form.Select
+                          name="country"
+                          value={data.country}
+                          onChange={(e) =>
+                            isShopping
+                              ? handleShoppingInputChange(e)
+                              : handleInputChange(e)
+                          }
+                          required
+                        >
+                          <option value="">{language === "zh" ? "请选择国家" : "Please select country"}</option>
+                          {countryList.map((country) => {
+                            const flagEmoji = String.fromCodePoint(
+                              127397 + country.code.charCodeAt(0),
+                              127397 + country.code.charCodeAt(1)
+                            );
+                            return (
+                              <option key={country.code} value={country.displayName}>
+                                {flagEmoji} {country.displayName}
+                              </option>
+                            );
+                          })}
+                          <option value="custom">
+                            {language === "zh" ? "其他（需要人工确认）" : "Other (manual confirmation required)"}
+                          </option>
+                        </Form.Select>
+                      </Form.Group>
+                    </Col>
+                    {isCustomCountry && (
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>
+                            {language === "zh" ? "请输入国家名称 *" : "Enter Country Name *"}
+                          </Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="customCountry"
+                            value={data.customCountry}
+                            onChange={(e) =>
+                              isShopping
+                                ? handleShoppingInputChange(e)
+                                : handleInputChange(e)
+                            }
+                            required
+                            placeholder={language === "zh" ? "请输入国家名称" : "Enter country name"}
+                          />
+                        </Form.Group>
+                      </Col>
                     )}
-                    <div>
-                      <div className="address-label">{language === "zh" ? "收货地址" : "Delivery Address"}</div>
-                      <div className="address-text">
-                        {isCustomCountry ? data.customCountry : data.country}
-                        {data.city && ` · ${data.city}`}
-                      </div>
-                    </div>
-                  </div>
-                </Card.Body>
-              </Card>
-            )}
-
-            <Row className="mb-4">
-              <Col md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>{language === "zh" ? "国家 *" : "Country *"}</Form.Label>
-                  <Form.Select
-                    name="country"
-                    value={data.country}
-                    onChange={(e) =>
-                      isShopping
-                        ? handleShoppingInputChange(e)
-                        : handleInputChange(e)
-                    }
-                    required
-                  >
-                    <option value="">{language === "zh" ? "请选择国家" : "Please select country"}</option>
-                    {countryList.map((country) => {
-                      const flagEmoji = String.fromCodePoint(
-                        127397 + country.code.charCodeAt(0),
-                        127397 + country.code.charCodeAt(1)
-                      );
-                      return (
-                        <option key={country.code} value={country.displayName}>
-                          {flagEmoji} {country.displayName}
-                        </option>
-                      );
-                    })}
-                    <option value="custom">
-                      {language === "zh" ? "其他（需要人工确认）" : "Other (manual confirmation required)"}
-                    </option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              {isCustomCountry && (
-                <Col md={4}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>
-                      {language === "zh" ? "请输入国家名称 *" : "Enter Country Name *"}
-                    </Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="customCountry"
-                      value={data.customCountry}
-                      onChange={(e) =>
-                        isShopping
-                          ? handleShoppingInputChange(e)
-                          : handleInputChange(e)
-                      }
-                      required
-                      placeholder={language === "zh" ? "请输入国家名称" : "Enter country name"}
-                    />
-                  </Form.Group>
-                </Col>
-              )}
-              <Col md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>{language === "zh" ? "城市 *" : "City *"}</Form.Label>
-                  {isCustomCountry ? (
-                    <Form.Control
-                      type="text"
-                      name="customCity"
-                      value={data.customCity}
-                      onChange={(e) =>
-                        isShopping
-                          ? handleShoppingInputChange(e)
-                          : handleInputChange(e)
-                      }
-                      required
-                      placeholder={language === "zh" ? "请输入城市名称" : "Enter city name"}
-                    />
-                  ) : (
-                    <Form.Select
-                      name="city"
-                      value={data.city}
-                      onChange={(e) =>
-                        isShopping
-                          ? handleShoppingInputChange(e)
-                          : handleInputChange(e)
-                      }
-                      required
-                      disabled={!selectedCountry}
-                    >
-                      <option value="">{language === "zh" ? "请选择城市" : "Please select city"}</option>
-                      {selectedCountry?.cities.map((city) => (
-                        <option key={city} value={city}>
-                          {city}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  )}
-                  <div className="city-note">
-                    {language === "zh"
-                      ? "注：如果都不在以上城市，先随便选一个，再填写详细地址"
-                      : "Note: If the city is not listed above, select any city first, then fill in the detailed address"}
-                  </div>
-                </Form.Group>
-              </Col>
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>{language === "zh" ? "城市 *" : "City *"}</Form.Label>
+                        {isCustomCountry ? (
+                          <Form.Control
+                            type="text"
+                            name="customCity"
+                            value={data.customCity}
+                            onChange={(e) =>
+                              isShopping
+                                ? handleShoppingInputChange(e)
+                                : handleInputChange(e)
+                            }
+                            required
+                            placeholder={language === "zh" ? "请输入城市名称" : "Enter city name"}
+                          />
+                        ) : (
+                          <Form.Select
+                            name="city"
+                            value={data.city}
+                            onChange={(e) =>
+                              isShopping
+                                ? handleShoppingInputChange(e)
+                                : handleInputChange(e)
+                            }
+                            required
+                            disabled={!selectedCountry}
+                          >
+                            <option value="">{language === "zh" ? "请选择城市" : "Please select city"}</option>
+                            {selectedCountry?.cities.map((city) => (
+                              <option key={city} value={city}>
+                                {city}
+                              </option>
+                            ))}
+                          </Form.Select>
+                        )}
+                        <div className="city-note">
+                          {language === "zh"
+                            ? "注：如果都不在以上城市，先随便选一个，再填写详细地址"
+                            : "Note: If the city is not listed above, select any city first, then fill in the detailed address"}
+                        </div>
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                </div>
+                <Row className="mb-4">
               <Col md={12}>
                 <Form.Group className="mb-3">
                   <Form.Label>{language === "zh" ? "详细地址 *" : "Detailed Address *"}</Form.Label>
                   <Form.Control
                     as="textarea"
-                    rows={2}
+                    rows={3}
                     name="detailAddress"
                     value={data.detailAddress}
                     onChange={(e) =>
@@ -559,63 +617,82 @@ const App: React.FC = () => {
                     required
                     placeholder={
                       language === "zh"
-                        ? "请输入详细地址，包括街道、门牌号等"
-                        : "Please enter detailed address, including street, door number, etc."
+                        ? "请输入详细地址，包括街道、门牌号、楼栋名称等"
+                        : "Please enter detailed address, including street, door number, building name, etc."
                     }
                   />
                 </Form.Group>
               </Col>
             </Row>
 
-            <div className="mb-4">
-              {(!isCustomCountry && (!data.country || !data.city)) ||
-              (isCustomCountry && (!data.customCountry || !data.customCity)) ? (
-                <Alert variant="warning" className="mb-3">
-                  {language === "zh"
-                    ? "⚠️ 请先填写国家和城市"
-                    : "⚠️ Please fill in country and city first"}
-                </Alert>
-              ) : !data.detailAddress ? (
-                <Alert variant="warning" className="mb-3">
-                  {language === "zh"
-                    ? "⚠️ 请先填写详细地址，然后验证地址是否在服务范围内"
-                    : "⚠️ Please fill in the detailed address first, then validate if the address is in the service range"}
-                </Alert>
-              ) : null}
+            {(!isCustomCountry && (!data.country || !data.city)) ||
+            (isCustomCountry && (!data.customCountry || !data.customCity)) ? (
+              <Alert variant="warning" className="validation-warning">
+                ⚠️ {language === "zh"
+                  ? "请先填写国家和城市"
+                  : "Please fill in country and city first"}
+              </Alert>
+            ) : !data.detailAddress ? (
+              <Alert variant="warning" className="validation-warning">
+                ⚠️ {language === "zh"
+                  ? "请填写详细地址后验证"
+                  : "Please validate your address before proceeding"}
+              </Alert>
+            ) : null}
 
-              <Button
-                onClick={() => validateAddress(isShopping)}
-                disabled={
-                  (!isCustomCountry && (!data.country || !data.city)) ||
-                  (isCustomCountry && (!data.customCountry || !data.customCity)) ||
-                  !data.detailAddress
-                }
-                className="w-100 btn-validate-custom"
+            <Button
+              onClick={() => validateAddress(isShopping)}
+              disabled={
+                (!isCustomCountry && (!data.country || !data.city)) ||
+                (isCustomCountry && (!data.customCountry || !data.customCity)) ||
+                !data.detailAddress
+              }
+              className="w-100 btn-validate-custom mb-3"
+            >
+              {language === "zh"
+                ? "📍 验证地址"
+                : "📍 Validate Address"}
+            </Button>
+
+            {vResult && (
+              <Alert
+                variant={vResult.valid ? "success" : "danger"}
+                className="validation-result"
               >
-                {language === "zh"
-                  ? "📍 验证地址是否在服务范围内"
-                  : "📍 Validate if address is in service range"}
+                {vResult.message}
+              </Alert>
+            )}
+
+            <div className="step-navigation">
+              <Button
+                onClick={() => handleNextStep(isShopping)}
+                disabled={!canProceedToStep2(isShopping)}
+                className="btn-next-step"
+              >
+                {language === "zh" ? "继续到订单详情 →" : "Continue to Order Details →"}
               </Button>
-
-              {vResult && (
-                <Alert
-                  variant={vResult.valid ? "success" : "danger"}
-                  className="mt-3"
-                >
-                  {vResult.message}
-                </Alert>
-              )}
             </div>
+          </>
+        )}
 
-            <h5 className="form-section-title">
-              {isShopping
-                ? language === "zh"
-                  ? "🛍️ 代购需求"
-                  : "🛍️ Shopping Requirements"
-                : language === "zh"
-                  ? "🍽️ 订单需求"
-                  : "🍽️ Order Requirements"}
-            </h5>
+        {/* Step 2: Order Details */}
+        {step === 2 && (
+          <>
+            <div className="step-header">
+              <h5 className="form-section-title">
+                <span className="step-icon">{isShopping ? "🛍️" : "🍽️"}</span>
+                {isShopping
+                  ? language === "zh"
+                    ? "代购需求"
+                    : "Shopping Requirements"
+                  : language === "zh"
+                    ? "订单需求"
+                    : "Order Requirements"}
+              </h5>
+              <p className="step-subtitle">
+                {language === "zh" ? "告诉我们您想要什么" : "Tell us what you want"}
+              </p>
+            </div>
             <Row className="mb-4">
               <Col md={12}>
                 <Form.Group className="mb-3">
@@ -712,7 +789,37 @@ const App: React.FC = () => {
               </Col>
             </Row>
 
-            <h5 className="form-section-title">📞 {language === "zh" ? "联系方式" : "Contact Information"}</h5>
+            <div className="step-navigation">
+              <Button
+                variant="outline-secondary"
+                onClick={() => handlePrevStep(isShopping)}
+                className="btn-prev-step"
+              >
+                ← {language === "zh" ? "返回" : "Back"}
+              </Button>
+              <Button
+                onClick={() => handleNextStep(isShopping)}
+                disabled={!canProceedToStep3(isShopping)}
+                className="btn-next-step"
+              >
+                {language === "zh" ? "继续到联系方式 →" : "Continue to Contact →"}
+              </Button>
+            </div>
+          </>
+        )}
+
+        {/* Step 3: Contact Information */}
+        {step === 3 && (
+          <>
+            <div className="step-header">
+              <h5 className="form-section-title">
+                <span className="step-icon">📞</span>
+                {language === "zh" ? "联系方式" : "Contact Information"}
+              </h5>
+              <p className="step-subtitle">
+                {language === "zh" ? "请留下您的联系方式" : "How can we reach you?"}
+              </p>
+            </div>
             <Row className="mb-4">
               <Col md={6}>
                 <Form.Group className="mb-3">
@@ -779,7 +886,7 @@ const App: React.FC = () => {
             </Row>
 
             {sResult && (
-              <Alert variant={sResult.success ? "success" : "danger"}>
+              <Alert variant={sResult.success ? "success" : "danger"} className="mb-3">
                 <div>{sResult.message}</div>
                 {sResult.orderId && (
                   <div className="mt-2">
@@ -792,46 +899,39 @@ const App: React.FC = () => {
               </Alert>
             )}
 
-            {!vResult?.valid && (
-              <Alert variant="danger" className="mb-3">
-                {language === "zh"
-                  ? "🚫 请先验证收货地址是否在服务范围内，验证成功后才能提交订单"
-                  : "🚫 Please validate if your delivery address is in the service range first. Only after successful validation can you submit the order"}
-              </Alert>
-            )}
-
-            <Button
-              type="submit"
-              className="w-100 btn-validate-custom"
-              size="lg"
-              disabled={isSubmitting || !vResult?.valid}
-              title={
-                !vResult?.valid
-                  ? language === "zh"
-                    ? "请先验证收货地址是否在服务范围内"
-                    : "Please validate the address first"
-                  : language === "zh"
-                    ? "点击提交订单"
-                    : "Click to submit order"
-              }
-            >
-              {isSubmitting ? (
-                <>
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    role="status"
-                    aria-hidden="true"
-                  />
-                  <span className="ms-2">
-                    {language === "zh" ? "提交中..." : "Submitting..."}
-                  </span>
-                </>
-              ) : (
-                `📤 ${language === "zh" ? "提交订单" : "Submit Order"}`
-              )}
-            </Button>
+            <div className="step-navigation">
+              <Button
+                variant="outline-secondary"
+                onClick={() => handlePrevStep(isShopping)}
+                className="btn-prev-step"
+              >
+                ← {language === "zh" ? "返回" : "Back"}
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting || !vResult?.valid || !data.customerName || !data.customerPhone}
+                className="btn-submit-final"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                    />
+                    <span className="ms-2">
+                      {language === "zh" ? "提交中..." : "Submitting..."}
+                    </span>
+                  </>
+                ) : (
+                  `📤 ${language === "zh" ? "提交订单" : "Submit Order"}`
+                )}
+              </Button>
+            </div>
+          </>
+        )}
           </Form>
         </Card.Body>
       </Card>
@@ -841,30 +941,85 @@ const App: React.FC = () => {
   const renderGuide = () => (
     <Card className="content-card">
       <Card.Header className="card-header-custom">
-        <h4 className="mb-0">{t("guideTitle")}</h4>
+        <div className="card-header-content">
+          <h4 className="mb-0">{t("guideTitle")}</h4>
+          <p className="header-subtitle">
+            {language === "zh" ? "关于订购您需要了解的一切" : "Everything you need to know about ordering"}
+          </p>
+        </div>
       </Card.Header>
       <Card.Body>
-        <div className="content-section">
-          <h5>{language === "zh" ? "1、关于下单" : "1. About Ordering"}</h5>
-          <p>
-            {language === "zh"
-              ? "本网站仅用于收集您的代点需求，目前暂不支持直接在线下单。请在提交表单时务必留下微信/手机号等联系方式，方便我们及时与您沟通。"
-              : "This website is only for collecting your ordering needs. Currently, direct online ordering is not supported. Please leave your WeChat/phone number and other contact information when submitting the form so we can contact you promptly."}
-          </p>
+        <div className="guide-section">
+          <div className="guide-item">
+            <div className="guide-icon-wrapper">
+              <span className="guide-icon">📖</span>
+              <div className="guide-number">1</div>
+            </div>
+            <div className="guide-content">
+              <h5>{language === "zh" ? "关于下单" : "About Ordering"}</h5>
+              <p>
+                {language === "zh"
+                  ? "本网站仅用于收集您的代点需求，目前暂不支持直接在线下单。请在提交表单时务必留下微信/手机号等联系方式，方便我们及时与您沟通。"
+                  : "This website is only for collecting your ordering needs. Currently, direct online ordering is not supported. Please leave your WeChat/phone number and other contact information when submitting the form so we can contact you promptly."}
+              </p>
+            </div>
+          </div>
 
-          <h5>{language === "zh" ? "2、地址可达性验证" : "2. Address Delivery Validation"}</h5>
-          <p>
-            {language === "zh"
-              ? "填写送餐或收货地址后，请您进行地址可达性验证。因各国配送覆盖范围不同，并非所有地区都能下单。如提示\"不支持\"，通常表示该地点无法配送，敬请谅解。"
-              : "After filling in the delivery or pickup address, please validate the address. Due to different delivery coverage in various countries, not all areas can place orders. If it shows \"not supported\", it usually means the location cannot be delivered. We apologize for the inconvenience."}
-          </p>
+          <div className="guide-item">
+            <div className="guide-icon-wrapper">
+              <span className="guide-icon">📍</span>
+              <div className="guide-number">2</div>
+            </div>
+            <div className="guide-content">
+              <h5>{language === "zh" ? "地址可达性验证" : "Address Delivery Validation"}</h5>
+              <p>
+                {language === "zh"
+                  ? "填写送餐或收货地址后，请您进行地址可达性验证。因各国配送覆盖范围不同，并非所有地区都能下单。如提示\"不支持\"，通常表示该地点无法配送，敬请谅解。"
+                  : "After filling in the delivery or pickup address, please validate the address. Due to different delivery coverage in various countries, not all areas can place orders. If it shows \"not supported\", it usually means the location cannot be delivered. We apologize for the inconvenience."}
+              </p>
+            </div>
+          </div>
 
-          <h5>{language === "zh" ? "3、订单处理流程" : "3. Order Processing Flow"}</h5>
-          <p>
-            {language === "zh"
-              ? "表单提交后，我们会在短时间内主动联系您，确认订单详情。请保持通信畅通，我们会尽快为您处理。"
-              : "After submitting the form, we will contact you shortly to confirm order details. Please keep your communication open. We will process your order as soon as possible."}
-          </p>
+          <div className="guide-item">
+            <div className="guide-icon-wrapper">
+              <span className="guide-icon">⏱️</span>
+              <div className="guide-number">3</div>
+            </div>
+            <div className="guide-content">
+              <h5>{language === "zh" ? "订单处理流程" : "Order Processing Flow"}</h5>
+              <p>
+                {language === "zh"
+                  ? "表单提交后，我们会在短时间内主动联系您，确认订单详情。请保持通信畅通，我们会尽快为您处理。"
+                  : "After submitting the form, we will contact you shortly to confirm order details. Please keep your communication open. We will process your order as soon as possible."}
+              </p>
+            </div>
+          </div>
+
+          <div className="ready-to-order-section">
+            <div className="ready-to-order-header">
+              <span className="check-icon">✅</span>
+              <h5>{language === "zh" ? "准备好下单了吗？" : "Ready to Order?"}</h5>
+            </div>
+            <p>
+              {language === "zh"
+                ? "前往外卖配送页面开始您的订单！"
+                : "Head to the Food Delivery page to start your order!"}
+            </p>
+            <div className="order-links">
+              <Button
+                onClick={() => setActiveTab("delivery")}
+                className="order-link-btn"
+              >
+                🍽️ {language === "zh" ? "外卖配送" : "Food Delivery"}
+              </Button>
+              <Button
+                onClick={() => setActiveTab("shopping")}
+                className="order-link-btn"
+              >
+                🛍️ {language === "zh" ? "网购代下" : "Online Shopping"}
+              </Button>
+            </div>
+          </div>
         </div>
       </Card.Body>
     </Card>
@@ -873,33 +1028,70 @@ const App: React.FC = () => {
   const renderAbout = () => (
     <Card className="content-card">
       <Card.Header className="card-header-custom">
-        <h4 className="mb-0">{t("aboutTitle")}</h4>
+        <div className="card-header-content">
+          <h4 className="mb-0">{t("aboutTitle")}</h4>
+          <p className="header-subtitle">
+            {language === "zh" ? "您值得信赖的全球食品配送合作伙伴" : "Your trusted partner for global food delivery"}
+          </p>
+        </div>
       </Card.Header>
       <Card.Body>
-        <div className="content-section">
-          <p>
-            {language === "zh"
-              ? "我们是一支面向中国用户提供海外外卖代点与网购代下服务的小型团队。"
-              : "We are a small team providing overseas food delivery and online shopping services for users."}
-          </p>
+        <div className="about-section">
+          <div className="about-item">
+            <div className="about-icon-wrapper">
+              <span className="about-icon">ℹ️</span>
+            </div>
+            <div className="about-content">
+              <h5>{language === "zh" ? "我们是谁" : "Who We Are"}</h5>
+              <p>
+                {language === "zh"
+                  ? "我们是一支面向用户提供海外外卖代点与网购代下服务的小型团队。"
+                  : "We are a small team providing overseas food delivery and online shopping services for users."}
+              </p>
+            </div>
+          </div>
 
-          <p>
-            {language === "zh"
-              ? "常为客户处理跨国下单相关需求，对各国的下单流程、配送规则与常见问题均有充分的了解。"
-              : "We often handle cross-border ordering needs for customers and have sufficient understanding of the ordering processes, delivery rules, and common issues in various countries."}
-          </p>
+          <div className="about-item">
+            <div className="about-icon-wrapper">
+              <span className="about-icon">🌍</span>
+            </div>
+            <div className="about-content">
+              <h5>{language === "zh" ? "全球专业知识" : "Global Expertise"}</h5>
+              <p>
+                {language === "zh"
+                  ? "常为客户处理跨国下单相关需求，对各国的下单流程、配送规则与常见问题均有充分的了解。"
+                  : "We often handle cross-border ordering needs for customers and have sufficient understanding of the ordering processes, delivery rules, and common issues in various countries."}
+              </p>
+            </div>
+          </div>
 
-          <p>
-            {language === "zh"
-              ? "我们坚持以规范、准确、及时为服务标准，在确认地址、核实配送范围、与商家沟通等环节中保持严谨态度，确保订单信息准确无误、服务流程顺畅可控。"
-              : "We adhere to standards of integrity, accuracy, and timeliness in our services. We maintain rigorous attitudes in confirming addresses, verifying delivery coverage, and communicating with merchants to ensure accurate order information and smooth service processes."}
-          </p>
+          <div className="about-item">
+            <div className="about-icon-wrapper">
+              <span className="about-icon">🛡️</span>
+            </div>
+            <div className="about-content">
+              <h5>{language === "zh" ? "信任与可靠性" : "Trust & Reliability"}</h5>
+              <p>
+                {language === "zh"
+                  ? "我们坚持以规范、准确、及时为服务标准，在确认地址、核实配送范围、与商家沟通等环节中保持严谨态度，确保订单信息准确无误、服务流程顺畅可控。"
+                  : "We adhere to standards of integrity, accuracy, and timeliness in our services. We maintain rigorous attitudes in confirming addresses, verifying delivery coverage, and communicating with merchants to ensure accurate order information and smooth service processes."}
+              </p>
+            </div>
+          </div>
 
-          <p>
-            {language === "zh"
-              ? "我们的目标是为用户提供可靠、省心、透明的代点体验，让您在海外下单变得更简单、更安心。"
-              : "Our goal is to provide users with reliable, worry-free, and transparent ordering experience, making it easier and more reassuring for you to order overseas."}
-          </p>
+          <div className="about-item">
+            <div className="about-icon-wrapper">
+              <span className="about-icon">🎯</span>
+            </div>
+            <div className="about-content">
+              <h5>{language === "zh" ? "我们的使命" : "Our Mission"}</h5>
+              <p>
+                {language === "zh"
+                  ? "我们的目标是为用户提供可靠、省心、透明的代点体验，让您在海外下单变得更简单、更安心。"
+                  : "Our goal is to provide users with reliable, worry-free, and transparent ordering experience, making it easier and more reassuring for you to order overseas."}
+              </p>
+            </div>
+          </div>
         </div>
       </Card.Body>
     </Card>
