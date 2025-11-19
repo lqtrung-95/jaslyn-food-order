@@ -15,7 +15,14 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, '../client/build')));
+app.use(express.static(path.join(__dirname, '../client/build'), {
+  maxAge: '1y',
+  setHeaders: (res, filePath) => {
+    if (path.extname(filePath) === '.html') {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+  }
+}));
 
 // Telegram配置
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -374,7 +381,18 @@ app.get('/api/health', (req, res) => {
 });
 
 // 静态文件服务
-app.get('*', (req, res) => {
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+
+  const acceptsHtml = Boolean(req.accepts('html'));
+  const isStaticAsset = path.extname(req.path) !== '';
+
+  if (!acceptsHtml || isStaticAsset) {
+    return next(); // let express send proper 404s for missing assets
+  }
+
   res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
 });
 
