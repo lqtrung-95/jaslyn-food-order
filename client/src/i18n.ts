@@ -3,7 +3,7 @@ export type Language = 'zh' | 'en';
 const zhTranslations = {
     // Header
     headerTitle: "J's Global Link",
-    headerSubtitle: "Global Bites & Buys, Handled by J.",
+    headerSubtitle: "海外外卖配送与网购代下，一站式搞定",
     navDelivery: "外卖代点",
     navShopping: "网购代下",
     navGuide: "使用说明",
@@ -126,7 +126,7 @@ type TranslationMap = Record<TranslationKey, string>;
 const enTranslations: TranslationMap = {
     // Header
     headerTitle: "J's Global Link",
-    headerSubtitle: "Global Bites & Buys, Handled by J.",
+    headerSubtitle: "Overseas food delivery and online shopping handled end-to-end by J.",
     navDelivery: "Food Delivery",
     navShopping: "Online Shopping",
     navGuide: "Instructions",

@@ -1031,7 +1031,9 @@ const App: React.FC = () => {
         <div className="card-header-content">
           <h4 className="mb-0">{t("guideTitle")}</h4>
           <p className="header-subtitle">
-            {language === "zh" ? "关于订购您需要了解的一切" : "Everything you need to know about ordering"}
+            {language === "zh"
+              ? "关于海外外卖与网购代下您需要了解的一切"
+              : "Everything you need to know about cross-border food delivery and shopping"}
           </p>
         </div>
       </Card.Header>
@@ -1043,11 +1045,11 @@ const App: React.FC = () => {
               <div className="guide-number">1</div>
             </div>
             <div className="guide-content">
-              <h5>{language === "zh" ? "关于下单" : "About Ordering"}</h5>
+              <h5>{language === "zh" ? "关于外卖与代购" : "About Delivery & Shopping"}</h5>
               <p>
                 {language === "zh"
-                  ? "本网站仅用于收集您的代点需求，目前暂不支持直接在线下单。请在提交表单时务必留下微信/手机号等联系方式，方便我们及时与您沟通。"
-                  : "This website is only for collecting your ordering needs. Currently, direct online ordering is not supported. Please leave your WeChat/phone number and other contact information when submitting the form so we can contact you promptly."}
+                  ? "本网站用于收集您海外外卖代点和网购代下的需求，目前暂不支持直接在线支付。请务必留下微信或手机号，方便我们及时与您沟通。"
+                  : "This website collects your overseas food delivery and shopping requests. Direct payment online is not yet supported, so please leave WeChat or phone details so we can coordinate quickly."}
               </p>
             </div>
           </div>
@@ -1089,8 +1091,8 @@ const App: React.FC = () => {
             </div>
             <p>
               {language === "zh"
-                ? "前往外卖配送页面开始您的订单！"
-                : "Head to the Food Delivery page to start your order!"}
+                ? "选择下面的服务，开启外卖配送或网购代下。"
+                : "Pick a service below to start food delivery or online shopping."}
             </p>
             <div className="order-links">
               <Button
@@ -1118,7 +1120,9 @@ const App: React.FC = () => {
         <div className="card-header-content">
           <h4 className="mb-0">{t("aboutTitle")}</h4>
           <p className="header-subtitle">
-            {language === "zh" ? "您值得信赖的全球食品配送合作伙伴" : "Your trusted partner for global food delivery"}
+            {language === "zh"
+              ? "您值得信赖的海外外卖与网购代下伙伴"
+              : "Your trusted partner for global food delivery and online shopping"}
           </p>
         </div>
       </Card.Header>
