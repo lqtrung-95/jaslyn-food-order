@@ -469,5 +469,40 @@
         ]
       }
     ]
+  },
+  {
+    "name": "🇯🇵 日本",
+    "code": "JP",
+    "currency": "JPY",
+    "platforms": ["Uber Eats", "Demae-can"],
+    "cities": [
+      { "name": "东京 Tokyo", "aliases": ["Tokyo"], "districts": [] },
+      { "name": "大阪 Osaka", "aliases": ["Osaka"], "districts": [] },
+      { "name": "京都 Kyoto", "aliases": ["Kyoto"], "districts": [] },
+      { "name": "横滨 Yokohama", "aliases": ["Yokohama"], "districts": [] }
+    ]
+  },
+  {
+    "name": "🇲🇽 墨西哥",
+    "code": "MX",
+    "currency": "MXN",
+    "platforms": ["Uber Eats", "DiDi Food"],
+    "cities": [
+      { "name": "墨西哥城 Mexico City", "aliases": ["Mexico City", "CDMX"], "districts": [] },
+      { "name": "瓜达拉哈拉 Guadalajara", "aliases": ["Guadalajara"], "districts": [] },
+      { "name": "蒙特雷 Monterrey", "aliases": ["Monterrey"], "districts": [] }
+    ]
+  },
+  {
+    "name": "🇹🇼 台湾",
+    "code": "TW",
+    "currency": "TWD",
+    "platforms": ["Uber Eats", "FoodPanda"],
+    "cities": [
+      { "name": "台北 Taipei", "aliases": ["Taipei"], "districts": [] },
+      { "name": "高雄 Kaohsiung", "aliases": ["Kaohsiung"], "districts": [] },
+      { "name": "台中 Taichung", "aliases": ["Taichung"], "districts": [] },
+      { "name": "台南 Tainan", "aliases": ["Tainan"], "districts": [] }
+    ]
   }
 ]
