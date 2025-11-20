@@ -55,7 +55,10 @@ const countryNameMap: Record<string, string> = {
   "德国": "Germany",
   "澳大利亚": "Australia",
   "柬埔寨": "Cambodia",
-  "菲律宾": "Philippines"
+  "菲律宾": "Philippines",
+  "日本": "Japan",
+  "墨西哥": "Mexico",
+  "台湾": "Taiwan"
 };
 
 const getLocalizedText = (text: string, lang: Language) => {
@@ -544,11 +547,11 @@ const App: React.FC = () => {
             <p className="header-subtitle">
               {language === "zh"
                 ? isShopping
-                  ? "从本地到国际商品，覆盖9个国家配送"
-                  : "从本地美食到国际料理，覆盖9个国家配送"
+                  ? "从本地到国际商品，跨国配送服务不断扩展。"
+                  : "从本地特色到国际美食，跨国配送服务不断扩展。"
                 : isShopping
-                  ? "From local to international products, delivered across 9 countries"
-                  : "From local favorites to international dishes, delivered across 9 countries"}
+                  ? "From local to international products, delivered across multiple countries and still growing."
+                  : "From local favorites to international dishes, delivered across multiple countries and still growing."}
             </p>
           </div>
         </Card.Header>
@@ -562,13 +565,31 @@ const App: React.FC = () => {
             </div>
             <p className="supported-areas-text">
               {isShopping ? (
-                language === "zh"
-                  ? "泰国, 新加坡, 马来西亚, 印尼, 越南, 柬埔寨, 菲律宾"
-                  : "Thailand, Singapore, Malaysia, Indonesia, Vietnam, Cambodia, Philippines"
+                language === "zh" ? (
+                  <>
+                    泰国、新加坡、马来西亚、印度尼西亚、越南、柬埔寨、菲律宾
+                    <br />
+                    <span className="supported-areas-note">(更多地区探索中)</span>
+                  </>
+                ) : (
+                  <>
+                    Thailand, Singapore, Malaysia, Indonesia, Vietnam, Cambodia, Philippines
+                    <br />
+                    <span className="supported-areas-note">(more regions coming soon)</span>
+                  </>
+                )
+              ) : language === "zh" ? (
+                <>
+                  泰国、新加坡、马来西亚、印度尼西亚、越南、德国、澳大利亚、柬埔寨、菲律宾、日本、墨西哥、台湾
+                  <br />
+                  <span className="supported-areas-note">(更多地区陆续开放)</span>
+                </>
               ) : (
-                language === "zh"
-                  ? "泰国, 新加坡, 马来西亚, 印尼, 越南, 德国, 澳大利亚, 柬埔寨, 菲律宾"
-                  : "Thailand, Singapore, Malaysia, Indonesia, Vietnam, Germany, Australia, Cambodia, Philippines"
+                <>
+                  Thailand, Singapore, Malaysia, Indonesia, Vietnam, Germany, Australia, Cambodia, Philippines, Japan, Mexico, Taiwan
+                  <br />
+                  <span className="supported-areas-note">(more regions coming soon)</span>
+                </>
               )}
             </p>
           </Alert>

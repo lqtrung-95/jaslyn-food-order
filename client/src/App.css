@@ -300,6 +300,12 @@ body {
   color: #1e3a5f;
   font-size: 0.9rem;
   line-height: 1.5;
+  text-align: left;
+}
+
+.supported-areas-note {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
 }
 
 .validation-warning {
@@ -864,6 +870,10 @@ fieldset:disabled .btn {
     font-size: 0.8rem;
   }
 
+  .brand-text {
+    text-align: center;
+  }
+
   .stepper-container {
     padding: 0 0.5rem;
   }
@@ -913,11 +923,41 @@ fieldset:disabled .btn {
     flex-direction: column;
     text-align: center;
     padding: 1.25rem;
+    align-items: center;
   }
 
   .guide-icon-wrapper,
   .about-icon-wrapper {
     margin: 0 auto;
+  }
+
+  .guide-content,
+  .about-content {
+    text-align: justify;
+    text-align-last: center;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  .guide-content h5,
+  .about-content h5 {
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .guide-content p,
+  .about-content p {
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+
+  .card-header-custom h4 {
+    font-size: 1.2rem;
+  }
+
+  .header-subtitle {
+    font-size: 0.82rem;
+    line-height: 1.45;
   }
 
   .order-links {
@@ -949,6 +989,25 @@ fieldset:disabled .btn {
   .content-section h5 {
     margin-top: 1.25rem;
     font-size: 1rem;
+  }
+
+  .guide-content h5,
+  .about-content h5 {
+    font-size: 1rem;
+  }
+
+  .guide-content p,
+  .about-content p {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .card-header-custom h4 {
+    font-size: 1.1rem;
+  }
+
+  .header-subtitle {
+    font-size: 0.78rem;
   }
 }
 

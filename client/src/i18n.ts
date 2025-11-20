@@ -12,9 +12,9 @@ const zhTranslations = {
     // Address Section
     addressSectionTitle: "📍 收货地址",
     supportedAreasTitle: "🌍 支持地区",
-    supportedAreasDelivery: "目前支持：泰国、新加坡、马来西亚、印尼、越南、德国、澳大利亚、柬埔寨、菲律宾",
-    supportedAreasDeliveryNote: "基于 Grab、Uber Eats 等主流平台覆盖范围",
-    supportedAreasShopping: "目前仅支持东南亚地区：泰国、新加坡、马来西亚、印尼、越南、柬埔寨、菲律宾",
+    supportedAreasDelivery: "目前支持：泰国、新加坡、马来西亚、印度尼西亚、越南、德国、澳大利亚、柬埔寨、菲律宾、日本、墨西哥、台湾（更多地区陆续开放）",
+    supportedAreasDeliveryNote: "基于 Grab、Uber Eats 等主流平台覆盖范围，服务国家不断增加",
+    supportedAreasShopping: "目前支持：泰国、新加坡、马来西亚、印度尼西亚、越南、柬埔寨、菲律宾（更多地区探索中）",
 
     // Form Fields
     countryLabel: "国家 *",
@@ -135,9 +135,9 @@ const enTranslations: TranslationMap = {
     // Address Section
     addressSectionTitle: "📍 Delivery Address",
     supportedAreasTitle: "🌍 Supported Areas",
-    supportedAreasDelivery: "Currently supported: Thailand, Singapore, Malaysia, Indonesia, Vietnam, Germany, Australia, Cambodia, Philippines",
-    supportedAreasDeliveryNote: "Based on coverage of major platforms like Grab, Uber Eats, etc.",
-    supportedAreasShopping: "Currently only supported in Southeast Asia: Thailand, Singapore, Malaysia, Indonesia, Vietnam, Cambodia, Philippines",
+    supportedAreasDelivery: "Currently supported: Thailand, Singapore, Malaysia, Indonesia, Vietnam, Germany, Australia, Cambodia, Philippines, Japan, Mexico, Taiwan (more regions coming soon)",
+    supportedAreasDeliveryNote: "Based on coverage of major platforms like Grab, Uber Eats, etc., and expanding",
+    supportedAreasShopping: "Currently supported: Thailand, Singapore, Malaysia, Indonesia, Vietnam, Cambodia, Philippines (more regions exploring)",
 
     // Form Fields
     countryLabel: "Country *",
