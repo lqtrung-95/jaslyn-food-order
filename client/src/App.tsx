@@ -9,6 +9,10 @@ import {
   CardHeader,
   CircularProgress,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
   Grid,
   InputLabel,
@@ -107,6 +111,7 @@ const App: React.FC = () => {
     message: string;
     orderId?: string;
   } | null>(null);
+  const [successNotice, setSuccessNotice] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<OrderForm>({
     customerName: "",
@@ -385,6 +390,11 @@ const App: React.FC = () => {
       if (isShoppingForm) {
         setShoppingSubmitResult(response.data);
         if (response.data.success) {
+          setSuccessNotice(
+            language === "zh"
+              ? "提交成功，您的订单我们已收到，请您稍等片刻我们会联系您，请留意您的微信"
+              : "Submitted successfully. We've received your order and will contact you soon. Please keep an eye on your WeChat."
+          );
           setShoppingFormData({
             customerName: "",
             customerPhone: "",
@@ -404,6 +414,11 @@ const App: React.FC = () => {
       } else {
         setSubmitResult(response.data);
         if (response.data.success) {
+          setSuccessNotice(
+            language === "zh"
+              ? "提交成功，您的订单我们已收到，请您稍等片刻我们会联系您，请留意您的微信"
+              : "Submitted successfully. We've received your order and will contact you soon. Please keep an eye on your WeChat."
+          );
           setFormData({
             customerName: "",
             customerPhone: "",
@@ -1450,6 +1465,31 @@ const App: React.FC = () => {
           </Grid>
         </Container>
       </main>
+      <Dialog
+        open={!!successNotice}
+        onClose={() => setSuccessNotice(null)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            fontWeight: 700,
+          }}
+        >
+          ✅ {language === "zh" ? "提交成功" : "Submitted Successfully"}
+        </DialogTitle>
+        <DialogContent dividers>
+          {successNotice}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSuccessNotice(null)} variant="contained">
+            {language === "zh" ? "好的" : "Got it"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <footer className="footer-custom">
         <Container maxWidth="lg">
