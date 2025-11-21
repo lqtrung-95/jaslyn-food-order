@@ -90,6 +90,29 @@ const getLocalizedText = (text: string, lang: Language) => {
 };
 
 const App: React.FC = () => {
+  const dropdownMenuProps = {
+    anchorOrigin: { vertical: "bottom" as const, horizontal: "left" as const },
+    transformOrigin: { vertical: "top" as const, horizontal: "left" as const },
+    PaperProps: {
+      sx: {
+        maxHeight: 320,
+        mt: 0.5,
+      },
+    },
+    MenuListProps: {
+      sx: {
+        py: 0,
+        "&::-webkit-scrollbar": {
+          width: 6,
+        },
+        "&::-webkit-scrollbar-thumb": {
+          backgroundColor: "#c1c1c1",
+          borderRadius: 3,
+        },
+      },
+    },
+  };
+
   const [language, setLanguage] = useState<Language>(() => {
     const saved = localStorage.getItem("language") as Language | null;
     return saved || "zh";
@@ -571,53 +594,55 @@ const App: React.FC = () => {
         <CardContent className="card-body">
           {renderStepper(step, isShopping)}
 
-          <Alert
-            icon={false}
-            severity="info"
-            className="mb-4 supported-areas-alert alert alert-info"
-          >
-            <div className="supported-areas-header">
-              <span className="globe-icon">🌍</span>
-              <strong>
-                {language === "zh" ? "支持地区" : "Supported Areas"}
-              </strong>
-            </div>
-            <p className="supported-areas-text">
-              {isShopping ? (
-                language === "zh" ? (
+          {step === 1 && (
+            <Alert
+              icon={false}
+              severity="info"
+              className="mb-4 supported-areas-alert alert alert-info"
+            >
+              <div className="supported-areas-header">
+                <span className="globe-icon">🌍</span>
+                <strong>
+                  {language === "zh" ? "支持地区" : "Supported Areas"}
+                </strong>
+              </div>
+              <p className="supported-areas-text">
+                {isShopping ? (
+                  language === "zh" ? (
+                    <>
+                      泰国、新加坡、马来西亚、印度尼西亚、越南、柬埔寨、菲律宾
+                      <br />
+                      <span className="supported-areas-note">(更多地区探索中)</span>
+                    </>
+                  ) : (
+                    <>
+                      Thailand, Singapore, Malaysia, Indonesia, Vietnam, Cambodia,
+                      Philippines
+                      <br />
+                      <span className="supported-areas-note">
+                        (more regions coming soon)
+                      </span>
+                    </>
+                  )
+                ) : language === "zh" ? (
                   <>
-                    泰国、新加坡、马来西亚、印度尼西亚、越南、柬埔寨、菲律宾
+                    泰国、新加坡、马来西亚、印度尼西亚、越南、德国、澳大利亚、柬埔寨、菲律宾、日本、墨西哥、台湾
                     <br />
-                    <span className="supported-areas-note">(更多地区探索中)</span>
+                    <span className="supported-areas-note">(更多地区陆续开放)</span>
                   </>
                 ) : (
                   <>
-                    Thailand, Singapore, Malaysia, Indonesia, Vietnam, Cambodia,
-                    Philippines
+                    Thailand, Singapore, Malaysia, Indonesia, Vietnam, Germany,
+                    Australia, Cambodia, Philippines, Japan, Mexico, Taiwan
                     <br />
                     <span className="supported-areas-note">
                       (more regions coming soon)
                     </span>
                   </>
-                )
-              ) : language === "zh" ? (
-                <>
-                  泰国、新加坡、马来西亚、印度尼西亚、越南、德国、澳大利亚、柬埔寨、菲律宾、日本、墨西哥、台湾
-                  <br />
-                  <span className="supported-areas-note">(更多地区陆续开放)</span>
-                </>
-              ) : (
-                <>
-                  Thailand, Singapore, Malaysia, Indonesia, Vietnam, Germany,
-                  Australia, Cambodia, Philippines, Japan, Mexico, Taiwan
-                  <br />
-                  <span className="supported-areas-note">
-                    (more regions coming soon)
-                  </span>
-                </>
-              )}
-            </p>
-          </Alert>
+                )}
+              </p>
+            </Alert>
+          )}
 
           <Box component="form" onSubmit={(e) => handleSubmit(e, isShopping)}>
             {step === 1 && (
@@ -637,7 +662,7 @@ const App: React.FC = () => {
                 <div className="address-form-wrapper">
                   <Grid container spacing={3}>
                     <Grid item xs={12} md={6}>
-                      <FormControl fullWidth className="mui-input">
+                      <FormControl fullWidth size="small" className="mui-input">
                         <InputLabel id={`country-${formId}-label`}>
                           {language === "zh" ? "国家 *" : "Country *"}
                         </InputLabel>
@@ -647,6 +672,7 @@ const App: React.FC = () => {
                           name="country"
                           value={data.country}
                           onChange={(e) => handleFieldChange("country", e.target.value, isShopping)}
+                          MenuProps={dropdownMenuProps}
                           required
                         >
                           <MenuItem value="">
@@ -723,19 +749,20 @@ const App: React.FC = () => {
                           className="mui-input"
                         />
                       ) : (
-                        <FormControl fullWidth className="mui-input">
+                        <FormControl fullWidth size="small" className="mui-input">
                           <InputLabel id={`city-${formId}-label`}>
                             {language === "zh" ? "城市 *" : "City *"}
                           </InputLabel>
                           <Select
                             labelId={`city-${formId}-label`}
-                            label={language === "zh" ? "城市 *" : "City *"}
-                            name="city"
-                            value={data.city}
-                            onChange={(e) => handleFieldChange("city", e.target.value, isShopping)}
-                            required
-                            disabled={!selectedCountry}
-                          >
+                          label={language === "zh" ? "城市 *" : "City *"}
+                          name="city"
+                          value={data.city}
+                          onChange={(e) => handleFieldChange("city", e.target.value, isShopping)}
+                          MenuProps={dropdownMenuProps}
+                          required
+                          disabled={!selectedCountry}
+                        >
                             <MenuItem value="">
                               <em>
                                 {language === "zh"
@@ -863,7 +890,7 @@ const App: React.FC = () => {
                 </div>
                 <Grid container spacing={3} className="mb-4">
                   <Grid item xs={12}>
-                    <FormControl fullWidth className="mui-input">
+                    <FormControl fullWidth size="small" className="mui-input">
                       <InputLabel id={`food-type-${formId}-label`}>
                         {isShopping
                           ? language === "zh"
@@ -888,6 +915,7 @@ const App: React.FC = () => {
                         name="foodType"
                         value={data.foodType}
                         onChange={(e) => handleFieldChange("foodType", e.target.value, isShopping)}
+                        MenuProps={dropdownMenuProps}
                         required
                       >
                         <MenuItem value="">
