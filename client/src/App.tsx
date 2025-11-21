@@ -233,14 +233,6 @@ const App: React.FC = () => {
     handleFieldChange(name as keyof OrderForm, value, isShopping);
   };
 
-  const handleSelectChange = (
-    field: keyof OrderForm,
-    isShopping: boolean = false
-  ) => (e: SelectChangeEvent<string>) => {
-    const value = e.target.value as string;
-    handleFieldChange(field, value, isShopping);
-  };
-
   const translateValidationMessage = (message: string): string => {
     if (language === "zh") return message;
 
