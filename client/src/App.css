@@ -552,10 +552,16 @@ body {
 
 .history-item-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 0.5rem;
   flex-wrap: wrap;
+}
+
+.history-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
 }
 
 .history-type {
@@ -624,6 +630,22 @@ body {
   padding: 0.75rem;
   color: var(--text-secondary);
   white-space: pre-wrap;
+}
+
+.history-actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.history-delete-btn.MuiButton-root {
+  border: 1px solid #dc3545;
+  color: #dc3545 !important;
+  flex: 0 0 auto;
+  padding: 0.35rem 0.75rem;
+  align-self: flex-start;
 }
 
 .history-images {
