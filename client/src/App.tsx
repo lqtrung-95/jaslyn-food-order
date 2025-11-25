@@ -26,6 +26,7 @@ import { translations, type Language, getTranslation } from "./i18n";
 import { Analytics } from "@vercel/analytics/react";
 
 type TabType = "delivery" | "shopping" | "guide" | "about";
+type OrderFormType = Extract<TabType, "delivery" | "shopping">;
 
 interface ApiCountry {
   name: string;
@@ -49,6 +50,13 @@ interface OrderForm {
   notes: string;
   customCountry: string;
   customCity: string;
+}
+
+interface OrderHistoryItem {
+  id: string;
+  formType: OrderFormType;
+  timestamp: number;
+  data: OrderForm;
 }
 
 const stripFlagEmoji = (text: string) => {
@@ -88,6 +96,8 @@ const getLocalizedText = (text: string, lang: Language) => {
 
   return cleanText;
 };
+
+const ORDER_HISTORY_STORAGE_KEY = "orderHistory";
 
 const App: React.FC = () => {
   const dropdownMenuProps = {
@@ -177,6 +187,19 @@ const App: React.FC = () => {
 
   const [currentStep, setCurrentStep] = useState(1);
   const [shoppingCurrentStep, setShoppingCurrentStep] = useState(1);
+  const [orderHistory, setOrderHistory] = useState<OrderHistoryItem[]>(() => {
+    const stored = localStorage.getItem(ORDER_HISTORY_STORAGE_KEY);
+    if (!stored) return [];
+    try {
+      return JSON.parse(stored) as OrderHistoryItem[];
+    } catch (error) {
+      console.error("读取历史订单失败:", error);
+      return [];
+    }
+  });
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [historyFormType, setHistoryFormType] =
+    useState<OrderFormType>("delivery");
 
   useEffect(() => {
     fetchCountries();
@@ -185,6 +208,10 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem("language", language);
   }, [language]);
+
+  useEffect(() => {
+    localStorage.setItem(ORDER_HISTORY_STORAGE_KEY, JSON.stringify(orderHistory));
+  }, [orderHistory]);
 
   const fetchCountries = async () => {
     try {
@@ -402,17 +429,19 @@ const App: React.FC = () => {
     }
 
     const isCustomCountry = data.country === "custom";
-    const submitData = {
+    const submitData: OrderForm = {
       ...data,
       country: isCustomCountry ? data.customCountry : data.country,
       city: isCustomCountry ? data.customCity : data.city,
     };
+    const historyData: OrderForm = { ...data };
 
     try {
       const response = await axios.post("/api/submit-order", submitData);
       if (isShoppingForm) {
         setShoppingSubmitResult(response.data);
         if (response.data.success) {
+          handleSaveHistory("shopping", historyData);
           setSuccessNotice(
             language === "zh"
               ? "提交成功，您的订单我们已收到，请您稍等片刻我们会联系您，请留意您的微信"
@@ -437,6 +466,7 @@ const App: React.FC = () => {
       } else {
         setSubmitResult(response.data);
         if (response.data.success) {
+          handleSaveHistory("delivery", historyData);
           setSuccessNotice(
             language === "zh"
               ? "提交成功，您的订单我们已收到，请您稍等片刻我们会联系您，请留意您的微信"
@@ -551,6 +581,50 @@ const App: React.FC = () => {
     }
   };
 
+  const handleSaveHistory = (
+    formType: OrderFormType,
+    data: OrderForm
+  ): void => {
+    const entry: OrderHistoryItem = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      formType,
+      timestamp: Date.now(),
+      data,
+    };
+    setOrderHistory((prev) => {
+      const updated = [entry, ...prev];
+      return updated.slice(0, 10);
+    });
+  };
+
+  const getHistoryDisplayLocation = (data: OrderForm) => {
+    const countryName =
+      data.country === "custom" ? data.customCountry || data.country : data.country;
+    const cityName =
+      data.country === "custom" ? data.customCity || data.city : data.city;
+    return { countryName, cityName };
+  };
+
+  const handleOpenHistoryModal = (isShopping: boolean) => {
+    setHistoryFormType(isShopping ? "shopping" : "delivery");
+    setHistoryModalOpen(true);
+  };
+
+  const handlePrefillFromHistory = (item: OrderHistoryItem) => {
+    if (item.formType === "delivery") {
+      setFormData(item.data);
+      setValidationResult(null);
+      setSubmitResult(null);
+      setCurrentStep(1);
+    } else {
+      setShoppingFormData(item.data);
+      setShoppingValidationResult(null);
+      setShoppingSubmitResult(null);
+      setShoppingCurrentStep(1);
+    }
+    setHistoryModalOpen(false);
+  };
+
   const renderOrderForm = (isShopping: boolean = false) => {
     const data = isShopping ? shoppingFormData : formData;
     const countryList = isShopping ? shoppingCountries : countries;
@@ -563,6 +637,9 @@ const App: React.FC = () => {
     const isSubmitting = isShopping ? shoppingSubmitting : submitting;
     const step = isShopping ? shoppingCurrentStep : currentStep;
     const formId = isShopping ? "shopping" : "delivery";
+    const hasHistory = orderHistory.some(
+      (item) => item.formType === (isShopping ? "shopping" : "delivery")
+    );
 
     return (
       <Card className="order-card">
@@ -593,6 +670,32 @@ const App: React.FC = () => {
         />
         <CardContent className="card-body">
           {renderStepper(step, isShopping)}
+          {hasHistory && (
+            <Alert icon={false} severity="info" className="history-alert">
+              <div className="history-alert-content">
+                <div className="history-alert-text">
+                  <strong>
+                    {language === "zh"
+                      ? "一键预填历史订单"
+                      : "Prefill with your last orders"}
+                  </strong>
+                  <span>
+                    {language === "zh"
+                      ? "打开最近的订单记录，快速填充所有字段。"
+                      : "Open your recent orders to quickly fill every step."}
+                  </span>
+                </div>
+                <Button
+                  variant="outlined"
+                  onClick={() => handleOpenHistoryModal(isShopping)}
+                  className="history-alert-btn"
+                  sx={{ textTransform: "none" }}
+                >
+                  {language === "zh" ? "查看历史" : "Open history"}
+                </Button>
+              </div>
+            </Alert>
+          )}
 
           {step === 1 && (
             <Alert
@@ -1493,6 +1596,125 @@ const App: React.FC = () => {
           </Grid>
         </Container>
       </main>
+      <Dialog
+        open={historyModalOpen}
+        onClose={() => setHistoryModalOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>
+          {historyFormType === "delivery"
+            ? language === "zh"
+              ? "历史外卖订单"
+              : "Delivery order history"
+            : language === "zh"
+            ? "历史网购订单"
+            : "Shopping order history"}
+        </DialogTitle>
+        <DialogContent dividers>
+          {orderHistory.filter((item) => item.formType === historyFormType).length ===
+          0 ? (
+            <div className="history-empty">
+              <div className="history-empty-icon">🗂️</div>
+              <p className="mb-0">
+                {language === "zh"
+                  ? "暂无历史记录，提交订单后会自动保存。"
+                  : "No history yet. Your orders will be saved after submission."}
+              </p>
+            </div>
+          ) : (
+            <div className="history-list">
+              {orderHistory
+                .filter((item) => item.formType === historyFormType)
+                .map((item) => {
+                  const { countryName, cityName } = getHistoryDisplayLocation(
+                    item.data
+                  );
+                  return (
+                    <div key={item.id} className="history-item">
+                      <div className="history-item-header">
+                        <span className="history-type">
+                          {item.formType === "delivery" ? "🍽️" : "🛍️"}{" "}
+                          {item.formType === "delivery"
+                            ? language === "zh"
+                              ? "外卖订单"
+                              : "Food delivery"
+                            : language === "zh"
+                            ? "网购订单"
+                            : "Online shopping"}
+                        </span>
+                        <span className="history-date">
+                          {new Date(item.timestamp).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="history-location">
+                        <strong>
+                          {countryName}
+                          {cityName ? ` · ${cityName}` : ""}
+                        </strong>
+                        {item.data.district && (
+                          <span className="history-district">{item.data.district}</span>
+                        )}
+                        <span className="history-address">{item.data.detailAddress}</span>
+                      </div>
+                      {item.data.foodType && (
+                        <div className="history-row">
+                          <span className="history-label">
+                            {language === "zh" ? "类型" : "Type"}:
+                          </span>
+                          <span>{getLocalizedText(item.data.foodType, language)}</span>
+                        </div>
+                      )}
+                      {(item.data.customerName ||
+                        item.data.customerPhone ||
+                        item.data.customerWechat) && (
+                        <div className="history-row">
+                          <span className="history-label">
+                            {language === "zh" ? "联系方式" : "Contact"}:
+                          </span>
+                          <div className="history-contact">
+                            {item.data.customerName && (
+                              <span className="history-contact-piece">
+                                {item.data.customerName}
+                              </span>
+                            )}
+                            {item.data.customerPhone && (
+                              <span className="history-contact-piece">
+                                {item.data.customerPhone}
+                              </span>
+                            )}
+                            {item.data.customerWechat && (
+                              <span className="history-contact-piece">
+                                {language === "zh" ? "微信" : "WeChat"}:{" "}
+                                {item.data.customerWechat}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      {item.data.notes && (
+                        <div className="history-notes">{item.data.notes}</div>
+                      )}
+                      <Button
+                        fullWidth
+                        onClick={() => handlePrefillFromHistory(item)}
+                        className="history-prefill-btn"
+                        sx={{ textTransform: "none" }}
+                      >
+                        {language === "zh" ? "使用该记录预填" : "Prefill this order"}
+                      </Button>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setHistoryModalOpen(false)}>
+            {language === "zh" ? "关闭" : "Close"}
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Dialog
         open={!!successNotice}
         onClose={() => setSuccessNotice(null)}
