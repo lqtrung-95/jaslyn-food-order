@@ -717,6 +717,29 @@ const App: React.FC = () => {
     setHistoryModalOpen(true);
   };
 
+  const handleDeleteHistory = (entryId: string) => {
+    const confirmMessage =
+      language === "zh" ? "确定要删除这条历史订单吗？" : "Delete this history entry?";
+    if (!window.confirm(confirmMessage)) return;
+
+    setOrderHistory((prev) => prev.filter((item) => item.id !== entryId));
+  };
+
+  const handleClearHistory = (formType: OrderFormType) => {
+    const hasEntries = orderHistory.some((item) => item.formType === formType);
+    if (!hasEntries) return;
+
+    const confirmMessage =
+      language === "zh"
+        ? "确定要清空该类别的历史订单吗？"
+        : "Clear all history for this order type?";
+    if (!window.confirm(confirmMessage)) return;
+
+    setOrderHistory((prev) =>
+      prev.filter((item) => item.formType !== formType)
+    );
+  };
+
   const handlePrefillFromHistory = (item: OrderHistoryItem) => {
     if (item.formType === "delivery") {
       setFormData({
@@ -1877,19 +1900,29 @@ const App: React.FC = () => {
                   return (
                     <div key={item.id} className="history-item">
                       <div className="history-item-header">
-                        <span className="history-type">
-                          {item.formType === "delivery" ? "🍽️" : "🛍️"}{" "}
-                          {item.formType === "delivery"
-                            ? language === "zh"
-                              ? "外卖订单"
-                              : "Food delivery"
-                            : language === "zh"
-                            ? "网购订单"
-                            : "Online shopping"}
-                        </span>
-                        <span className="history-date">
-                          {new Date(item.timestamp).toLocaleString()}
-                        </span>
+                        <div className="history-header-info">
+                          <span className="history-type">
+                            {item.formType === "delivery" ? "🍽️" : "🛍️"}{" "}
+                            {item.formType === "delivery"
+                              ? language === "zh"
+                                ? "外卖订单"
+                                : "Food delivery"
+                              : language === "zh"
+                              ? "网购订单"
+                              : "Online shopping"}
+                          </span>
+                          <span className="history-date">
+                            {new Date(item.timestamp).toLocaleString()}
+                          </span>
+                        </div>
+                        <Button
+                          color="error"
+                          onClick={() => handleDeleteHistory(item.id)}
+                          className="history-delete-btn"
+                          sx={{ textTransform: "none" }}
+                        >
+                          {language === "zh" ? "删除" : "Delete"}
+                        </Button>
                       </div>
                       <div className="history-location">
                         <strong>
@@ -1958,14 +1991,18 @@ const App: React.FC = () => {
                             </div>
                           </div>
                         )}
-                      <Button
-                        fullWidth
-                        onClick={() => handlePrefillFromHistory(item)}
-                        className="history-prefill-btn"
-                        sx={{ textTransform: "none" }}
-                      >
-                        {language === "zh" ? "使用该记录预填" : "Prefill this order"}
-                      </Button>
+                      <div className="history-actions">
+                        <Button
+                          fullWidth
+                          onClick={() => handlePrefillFromHistory(item)}
+                          className="history-prefill-btn"
+                          sx={{ textTransform: "none" }}
+                        >
+                          {language === "zh"
+                            ? "使用该记录预填"
+                            : "Prefill this order"}
+                        </Button>
+                      </div>
                     </div>
                   );
                 })}
@@ -1973,6 +2010,16 @@ const App: React.FC = () => {
           )}
         </DialogContent>
         <DialogActions>
+          <Button
+            color="error"
+            onClick={() => handleClearHistory(historyFormType)}
+            disabled={
+              !orderHistory.some((item) => item.formType === historyFormType)
+            }
+            sx={{ textTransform: "none" }}
+          >
+            {language === "zh" ? "清空历史" : "Clear history"}
+          </Button>
           <Button onClick={() => setHistoryModalOpen(false)}>
             {language === "zh" ? "关闭" : "Close"}
           </Button>
