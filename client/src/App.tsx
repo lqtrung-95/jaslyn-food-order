@@ -215,7 +215,14 @@ const App: React.FC = () => {
   }, [language]);
 
   useEffect(() => {
-    localStorage.setItem(ORDER_HISTORY_STORAGE_KEY, JSON.stringify(orderHistory));
+    try {
+      localStorage.setItem(
+        ORDER_HISTORY_STORAGE_KEY,
+        JSON.stringify(orderHistory)
+      );
+    } catch (error) {
+      console.error("保存历史订单失败:", error);
+    }
   }, [orderHistory]);
 
   const fetchCountries = async () => {
@@ -541,6 +548,7 @@ const App: React.FC = () => {
             notes: "",
             customCountry: "",
             customCity: "",
+            productImages: [],
           });
           setShoppingValidationResult(null);
           setShoppingCurrentStep(1);
@@ -566,6 +574,7 @@ const App: React.FC = () => {
             notes: "",
             customCountry: "",
             customCity: "",
+            productImages: [],
           });
           setValidationResult(null);
           setCurrentStep(1);
@@ -679,11 +688,15 @@ const App: React.FC = () => {
     formType: OrderFormType,
     data: OrderForm
   ): void => {
+    const historyData: OrderForm = {
+      ...data,
+      productImages: data.productImages ? [...data.productImages] : [],
+    };
     const entry: OrderHistoryItem = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       formType,
       timestamp: Date.now(),
-      data,
+      data: historyData,
     };
     setOrderHistory((prev) => {
       const updated = [entry, ...prev];
@@ -706,12 +719,22 @@ const App: React.FC = () => {
 
   const handlePrefillFromHistory = (item: OrderHistoryItem) => {
     if (item.formType === "delivery") {
-      setFormData(item.data);
+      setFormData({
+        ...item.data,
+        productImages: item.data.productImages
+          ? [...item.data.productImages]
+          : [],
+      });
       setValidationResult(null);
       setSubmitResult(null);
       setCurrentStep(1);
     } else {
-      setShoppingFormData(item.data);
+      setShoppingFormData({
+        ...item.data,
+        productImages: item.data.productImages
+          ? [...item.data.productImages]
+          : [],
+      });
       setShoppingValidationResult(null);
       setShoppingSubmitResult(null);
       setShoppingCurrentStep(1);
@@ -764,8 +787,13 @@ const App: React.FC = () => {
         />
         <CardContent className="card-body">
           {renderStepper(step, isShopping)}
-          {hasHistory && (
-            <Alert icon={false} severity="info" className="history-alert">
+          {step === 1 && hasHistory && (
+            <Alert
+              icon={false}
+              severity="info"
+              className="history-alert"
+              sx={{ "&>div": { width: "100%" } }}
+            >
               <div className="history-alert-content">
                 <div className="history-alert-text">
                   <strong>
@@ -1476,18 +1504,19 @@ const App: React.FC = () => {
                           ? "订餐人微信号"
                           : "WeChat ID"
                       }
-                      name="customerWechat"
-                      value={data.customerWechat}
-                      onChange={(e) => handleTextChange(e, isShopping)}
-                      placeholder={
-                        language === "zh"
-                          ? "选填，方便联系"
-                          : "Optional, for easy contact"
-                      }
-                      className="mui-input"
-                    />
-                  </Grid>
-                </Grid>
+                  name="customerWechat"
+                  value={data.customerWechat}
+                  onChange={(e) => handleTextChange(e, isShopping)}
+                  required
+                  placeholder={
+                    language === "zh"
+                      ? "请输入微信号，方便联系"
+                      : "Please enter your WeChat ID"
+                  }
+                  className="mui-input"
+                />
+              </Grid>
+            </Grid>
 
                 {sResult && (
                   <Alert
@@ -1522,7 +1551,8 @@ const App: React.FC = () => {
                       isSubmitting ||
                       !vResult?.valid ||
                       !data.customerName ||
-                      !data.customerPhone
+                      !data.customerPhone ||
+                      !data.customerWechat
                     }
                     className="btn-submit-final"
                     sx={{ textTransform: "none" }}
@@ -1909,6 +1939,25 @@ const App: React.FC = () => {
                       {item.data.notes && (
                         <div className="history-notes">{item.data.notes}</div>
                       )}
+                      {item.formType === "shopping" &&
+                        item.data.productImages &&
+                        item.data.productImages.length > 0 && (
+                          <div className="history-images">
+                            <span className="history-label">
+                              {language === "zh" ? "商品图片" : "Product images"}:
+                            </span>
+                            <div className="history-image-grid">
+                              {item.data.productImages.map((img, idx) => (
+                                <div key={idx} className="history-image-thumb">
+                                  <img
+                                    src={img}
+                                    alt={`Product ${idx + 1}`}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       <Button
                         fullWidth
                         onClick={() => handlePrefillFromHistory(item)}
