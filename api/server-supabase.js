@@ -13,8 +13,8 @@ const PORT = process.env.PORT || 3000;
 
 // 中间件
 app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: '50mb' })); // Increase limit for base64 images
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(path.join(__dirname, '../client/build'), {
   maxAge: '1y',
   setHeaders: (res, filePath) => {
@@ -128,24 +128,50 @@ async function sendTelegramNotification(order) {
 食物类型: ${order.food_type}
 特殊需求: ${order.notes || '无'}`;
 
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    
     // 发送给所有配置的用户
-    const sendPromises = TELEGRAM_USER_IDS.map(userId => 
-      axios.post(url, {
-        chat_id: userId,
-        text: message,
-        parse_mode: 'HTML'
-      }).catch(error => {
-        console.error(`发送给用户 ${userId} 失败:`, error.message);
-        return null;
-      })
-    );
+    for (const userId of TELEGRAM_USER_IDS) {
+      try {
+        // Send text message first
+        const messageUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+        await axios.post(messageUrl, {
+          chat_id: userId,
+          text: message,
+          parse_mode: 'HTML'
+        });
 
-    const results = await Promise.all(sendPromises);
-    const successCount = results.filter(r => r !== null).length;
+        // Send product images if available
+        if (order.product_images && order.product_images.length > 0) {
+          const photoUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
+          
+          for (let i = 0; i < order.product_images.length; i++) {
+            const base64Image = order.product_images[i];
+            
+            // Convert base64 to buffer
+            const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, '');
+            const imageBuffer = Buffer.from(base64Data, 'base64');
+            
+            // Send image using multipart/form-data
+            const FormData = require('form-data');
+            const form = new FormData();
+            form.append('chat_id', userId);
+            form.append('photo', imageBuffer, {
+              filename: `product_${i + 1}.jpg`,
+              contentType: 'image/jpeg'
+            });
+            form.append('caption', `📸 商品图片 ${i + 1}/${order.product_images.length}\n订单号: ${order.order_id}`);
+            
+            await axios.post(photoUrl, form, {
+              headers: form.getHeaders()
+            });
+          }
+        }
+        
+        console.log(`✅ 通知发送成功给用户 ${userId}`);
+      } catch (error) {
+        console.error(`❌ 发送给用户 ${userId} 失败:`, error.message);
+      }
+    }
     
-    console.log(`Telegram通知发送成功: ${successCount}/${TELEGRAM_USER_IDS.length} 个用户`);
     return true;
   } catch (error) {
     console.error('Telegram通知发送失败:', error.message);
@@ -249,6 +275,7 @@ app.post('/api/submit-order', async (req, res) => {
       notes: orderData.notes || null,
       custom_country: orderData.customCountry || null,
       custom_city: orderData.customCity || null,
+      product_images: orderData.productImages || null,
       status: 'pending'
     };
 
