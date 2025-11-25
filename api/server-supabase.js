@@ -131,39 +131,74 @@ async function sendTelegramNotification(order) {
     // 发送给所有配置的用户
     for (const userId of TELEGRAM_USER_IDS) {
       try {
-        // Send text message first
         const messageUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-        await axios.post(messageUrl, {
-          chat_id: userId,
-          text: message,
-          parse_mode: 'HTML'
-        });
+        const sendPhotoUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
+        const mediaGroupUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMediaGroup`;
 
-        // Send product images if available
+        // If there are product images, send them as a single album with the full caption on the first photo
         if (order.product_images && order.product_images.length > 0) {
-          const photoUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
-          
-          for (let i = 0; i < order.product_images.length; i++) {
-            const base64Image = order.product_images[i];
-            
-            // Convert base64 to buffer
-            const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, '');
+          const FormData = require('form-data');
+          const images = order.product_images;
+
+          if (images.length === 1) {
+            const base64Data = images[0].replace(/^data:image\/\w+;base64,/, '');
             const imageBuffer = Buffer.from(base64Data, 'base64');
-            
-            // Send image using multipart/form-data
-            const FormData = require('form-data');
+
             const form = new FormData();
             form.append('chat_id', userId);
             form.append('photo', imageBuffer, {
-              filename: `product_${i + 1}.jpg`,
+              filename: 'product_1.jpg',
               contentType: 'image/jpeg'
             });
-            form.append('caption', `📸 商品图片 ${i + 1}/${order.product_images.length}\n订单号: ${order.order_id}`);
-            
-            await axios.post(photoUrl, form, {
+            form.append('caption', message);
+            form.append('parse_mode', 'HTML');
+
+            await axios.post(sendPhotoUrl, form, {
+              headers: form.getHeaders()
+            });
+          } else {
+            const form = new FormData();
+            form.append('chat_id', userId);
+
+            const media = images.map((base64Image, index) => {
+              const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, '');
+              const imageBuffer = Buffer.from(base64Data, 'base64');
+              const attachmentName = `photo${index}`;
+
+              form.append(attachmentName, imageBuffer, {
+                filename: `product_${index + 1}.jpg`,
+                contentType: 'image/jpeg'
+              });
+
+              // Only first item carries the full caption so Telegram shows it under the album
+              if (index === 0) {
+                return {
+                  type: 'photo',
+                  media: `attach://${attachmentName}`,
+                  caption: message,
+                  parse_mode: 'HTML'
+                };
+              }
+
+              return {
+                type: 'photo',
+                media: `attach://${attachmentName}`
+              };
+            });
+
+            form.append('media', JSON.stringify(media));
+
+            await axios.post(mediaGroupUrl, form, {
               headers: form.getHeaders()
             });
           }
+        } else {
+          // No images, send text message only
+          await axios.post(messageUrl, {
+            chat_id: userId,
+            text: message,
+            parse_mode: 'HTML'
+          });
         }
         
         console.log(`✅ 通知发送成功给用户 ${userId}`);
