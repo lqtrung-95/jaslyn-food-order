@@ -49,6 +49,7 @@ interface OrderForm {
   notes: string;
   customCountry: string;
   customCity: string;
+  productImages?: string[];
 }
 
 const stripFlagEmoji = (text: string) => {
@@ -148,6 +149,7 @@ const App: React.FC = () => {
     notes: "",
     customCountry: "",
     customCity: "",
+    productImages: [],
   });
 
   const [shoppingFormData, setShoppingFormData] = useState<OrderForm>({
@@ -162,6 +164,7 @@ const App: React.FC = () => {
     notes: "",
     customCountry: "",
     customCity: "",
+    productImages: [],
   });
 
   const [shoppingValidationResult, setShoppingValidationResult] = useState<{
@@ -258,6 +261,81 @@ const App: React.FC = () => {
   ) => {
     const { name, value } = e.target;
     handleFieldChange(name as keyof OrderForm, value, isShopping);
+  };
+
+  const handleImageUpload = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    isShopping: boolean = false
+  ) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const data = isShopping ? shoppingFormData : formData;
+    const setData = isShopping ? setShoppingFormData : setFormData;
+    const currentImages = data.productImages || [];
+
+    // Check if adding new images would exceed the limit
+    if (currentImages.length >= 5) {
+      alert(
+        language === "zh"
+          ? "最多只能上传5张图片"
+          : "Maximum 5 images allowed"
+      );
+      return;
+    }
+
+    const filesToProcess = Array.from(files).slice(0, 5 - currentImages.length);
+    const newImages: string[] = [];
+    let processedCount = 0;
+
+    // Convert files to base64
+    filesToProcess.forEach((file) => {
+      if (file.size > 5 * 1024 * 1024) {
+        alert(
+          language === "zh"
+            ? "图片大小不能超过5MB"
+            : "Image size cannot exceed 5MB"
+        );
+        processedCount++;
+        if (processedCount === filesToProcess.length && newImages.length > 0) {
+          setData({
+            ...data,
+            productImages: [...currentImages, ...newImages],
+          });
+        }
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        newImages.push(base64String);
+        processedCount++;
+
+        // Update state once all files are processed
+        if (processedCount === filesToProcess.length) {
+          setData({
+            ...data,
+            productImages: [...currentImages, ...newImages],
+          });
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Reset input value to allow uploading the same file again
+    e.target.value = "";
+  };
+
+  const handleRemoveImage = (index: number, isShopping: boolean = false) => {
+    const data = isShopping ? shoppingFormData : formData;
+    const setData = isShopping ? setShoppingFormData : setFormData;
+    const currentImages = data.productImages || [];
+
+    setData({
+      ...data,
+      productImages: currentImages.filter((_, i) => i !== index),
+    });
   };
 
   const translateValidationMessage = (message: string): string => {
@@ -1072,6 +1150,126 @@ const App: React.FC = () => {
                       className="mui-input"
                     />
                   </Grid>
+                  {isShopping && (
+                    <Grid item xs={12}>
+                      <Box sx={{ mt: 2 }}>
+                        <label
+                          style={{
+                            display: "block",
+                            marginBottom: "8px",
+                            fontSize: "14px",
+                            fontWeight: 500,
+                            color: "#333",
+                          }}
+                        >
+                          📸{" "}
+                          {language === "zh"
+                            ? "上传商品图片（选填）"
+                            : "Upload Product Images (Optional)"}
+                        </label>
+                        <p
+                          style={{
+                            fontSize: "12px",
+                            color: "#666",
+                            marginBottom: "12px",
+                          }}
+                        >
+                          {language === "zh"
+                            ? "上传商品图片帮助我们更快找到相似产品（淘宝、1688等）"
+                            : "Upload product images to help us find similar products faster (Taobao, 1688, etc.)"}
+                        </p>
+                        <Button
+                          variant="outlined"
+                          component="label"
+                          sx={{
+                            textTransform: "none",
+                            borderStyle: "dashed",
+                            borderWidth: 2,
+                            padding: "12px 24px",
+                          }}
+                        >
+                          {language === "zh"
+                            ? "📁 选择图片"
+                            : "📁 Choose Images"}
+                          <input
+                            type="file"
+                            hidden
+                            accept="image/*"
+                            multiple
+                            onChange={(e) => handleImageUpload(e, isShopping)}
+                          />
+                        </Button>
+                        <span
+                          style={{
+                            marginLeft: "12px",
+                            fontSize: "12px",
+                            color: "#999",
+                          }}
+                        >
+                          {language === "zh"
+                            ? "最多5张，每张不超过5MB"
+                            : "Max 5 images, 5MB each"}
+                        </span>
+
+                        {data.productImages && data.productImages.length > 0 && (
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: 2,
+                              mt: 2,
+                            }}
+                          >
+                            {data.productImages.map((img, index) => (
+                              <Box
+                                key={index}
+                                sx={{
+                                  position: "relative",
+                                  width: 120,
+                                  height: 120,
+                                  border: "1px solid #ddd",
+                                  borderRadius: "8px",
+                                  overflow: "hidden",
+                                }}
+                              >
+                                <img
+                                  src={img}
+                                  alt={`Product ${index + 1}`}
+                                  style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                  }}
+                                />
+                                <Button
+                                  onClick={() =>
+                                    handleRemoveImage(index, isShopping)
+                                  }
+                                  sx={{
+                                    position: "absolute",
+                                    top: 4,
+                                    right: 4,
+                                    minWidth: "24px",
+                                    width: "24px",
+                                    height: "24px",
+                                    padding: 0,
+                                    backgroundColor: "rgba(0,0,0,0.6)",
+                                    color: "white",
+                                    borderRadius: "50%",
+                                    "&:hover": {
+                                      backgroundColor: "rgba(0,0,0,0.8)",
+                                    },
+                                  }}
+                                >
+                                  ✕
+                                </Button>
+                              </Box>
+                            ))}
+                          </Box>
+                        )}
+                      </Box>
+                    </Grid>
+                  )}
                 </Grid>
 
                 <div className="step-navigation">
