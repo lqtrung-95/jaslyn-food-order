@@ -64,6 +64,8 @@ const stripFlagEmoji = (text: string) => {
   return text.replace(/(?:\uD83C[\uDDE6-\uDDFF]){2}\s*/g, "").trim();
 };
 
+const SUBMIT_TIMEOUT_MS = 10000;
+
 const countryNameMap: Record<string, string> = {
   泰国: "Thailand",
   新加坡: "Singapore",
@@ -515,7 +517,9 @@ const App: React.FC = () => {
     const historyData: OrderForm = { ...data };
 
     try {
-      const response = await axios.post("/api/submit-order", submitData);
+      const response = await axios.post("/api/submit-order", submitData, {
+        timeout: SUBMIT_TIMEOUT_MS,
+      });
       if (isShoppingForm) {
         setShoppingSubmitResult(response.data);
         if (response.data.success) {
@@ -568,9 +572,21 @@ const App: React.FC = () => {
         }
       }
     } catch (error) {
+      const isTimeout =
+        axios.isAxiosError(error) &&
+        (error.code === "ECONNABORTED" ||
+          error.message?.toLowerCase().includes("timeout"));
+      const message = isTimeout
+        ? language === "zh"
+          ? "提交超时，请重试"
+          : "Request timed out. Please try again."
+        : language === "zh"
+        ? "提交失败，请重试"
+        : "Submission failed, please try again.";
+
       const errorResult = {
         success: false,
-        message: "提交失败，请重试",
+        message,
       };
       if (isShoppingForm) {
         setShoppingSubmitResult(errorResult);
