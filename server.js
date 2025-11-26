@@ -257,12 +257,23 @@ app.post('/api/submit-order', async (req, res) => {
         const orderData = req.body;
         console.log(`%c🪄 orderData`, `background: #ff6b35; color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: bold`, orderData);
 
-        // 验证地址
-        const validation = validateAddress(
-            orderData.country,
-            orderData.city,
-            orderData.district
+        // 验证地址（允许自定义城市/国家跳过校验）
+        const isCustomAddress = Boolean(
+            orderData.country === 'custom' ||
+            (orderData.customCountry && orderData.customCountry.trim()) ||
+            (orderData.customCity && orderData.customCity.trim())
         );
+
+        const validation = isCustomAddress
+            ? {
+                valid: true,
+                message: '✅ 已记录您的地址，我们会尽快人工确认是否支持该地区配送'
+              }
+            : validateAddress(
+                orderData.country,
+                orderData.city,
+                orderData.district
+              );
 
         if (!validation.valid) {
             return res.status(400).json({
