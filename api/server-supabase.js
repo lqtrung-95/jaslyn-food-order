@@ -6,7 +6,6 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const axios = require('axios');
 const moment = require('moment');
-const supabase = require('../lib/supabase');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -325,28 +324,16 @@ app.post('/api/submit-order', async (req, res) => {
       status: 'pending'
     };
 
-    // 保存订单到Supabase
-    const { data, error } = await supabase
-      .from('orders')
-      .insert([orderRecord])
-      .select()
-      .single();
-
-    if (error) {
-      console.error('保存订单到Supabase失败:', error);
-      return res.status(500).json({
-        success: false,
-        message: '订单保存失败，请重试'
-      });
-    }
+    // 添加创建时间
+    orderRecord.created_at = new Date().toISOString();
 
     // 发送Telegram通知
-    await sendTelegramNotification(data);
+    await sendTelegramNotification(orderRecord);
 
     res.json({
       success: true,
       message: '订单提交成功！我们会尽快联系您',
-      orderId: data.order_id
+      orderId: orderRecord.order_id
     });
 
   } catch (error) {
@@ -363,37 +350,10 @@ app.get('/api/order/:orderId', async (req, res) => {
   try {
     const { orderId } = req.params;
 
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('order_id', orderId)
-      .single();
-
-    if (error || !data) {
-      return res.status(404).json({
-        success: false,
-        message: '订单不存在'
-      });
-    }
-
-    res.json({
-      success: true,
-      order: {
-        orderId: data.order_id,
-        customerName: data.customer_name,
-        customerPhone: data.customer_phone,
-        customerWechat: data.customer_wechat,
-        country: data.country,
-        city: data.city,
-        district: data.district,
-        detailAddress: data.detail_address,
-        foodType: data.food_type,
-        notes: data.notes,
-        customCountry: data.custom_country,
-        customCity: data.custom_city,
-        status: data.status,
-        createdAt: data.created_at
-      }
+    console.log(`订单查询请求（无持久化）: ${orderId}`);
+    return res.status(404).json({
+      success: false,
+      message: '当前部署未存储订单'
     });
 
   } catch (error) {
@@ -408,34 +368,8 @@ app.get('/api/order/:orderId', async (req, res) => {
 // 管理员接口 - 获取订单列表
 app.get('/api/admin/orders', async (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      throw error;
-    }
-
-    // 转换数据格式以保持与前端的兼容性
-    const orders = data.map(order => ({
-      orderId: order.order_id,
-      customerName: order.customer_name,
-      customerPhone: order.customer_phone,
-      customerWechat: order.customer_wechat,
-      country: order.country,
-      city: order.city,
-      district: order.district,
-      detailAddress: order.detail_address,
-      foodType: order.food_type,
-      notes: order.notes,
-      customCountry: order.custom_country,
-      customCity: order.custom_city,
-      status: order.status,
-      createdAt: order.created_at
-    }));
-
-    res.json(orders);
+    console.log('管理员订单列表请求（无持久化）');
+    res.json([]);
   } catch (error) {
     console.error('获取订单列表错误:', error);
     res.status(500).json({
@@ -449,7 +383,7 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    database: 'supabase'
+    database: 'none'
   });
 });
 
@@ -473,7 +407,7 @@ app.get('*', (req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🍜 异国小助手服务器运行在端口 ${PORT}`);
   console.log(`🌐 访问地址: http://localhost:${PORT}`);
-  console.log(`📊 数据库: Supabase`);
+  console.log('📊 数据库: 无持久化，仅发送通知');
 });
 
 module.exports = app;
